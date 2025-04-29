@@ -1,0 +1,128 @@
+\documentclass{article}
+\usepackage{booktabs}
+
+\usepackage{graphicx}
+\usepackage{tabularx}
+
+\title{Gestione servizio di vehicle sharing}
+
+\author{Lorenzo Peronese, Emanuele Argonni}
+
+\begin{document}
+
+\maketitle
+
+\tableofcontents
+
+\newpage
+
+\section{Analisi dei requisiti}
+
+\subsection{Requisiti in linguaggio naturale}
+
+Si intende realizzare una base di dati per la gestione di un servizio di vehicle sharing elettrici, che offra agli utenti la possibilità di noleggiare automobili, biciclette, monopattini e scooter.
+Il sistema dovrà gestire tutti gli aspetti relativi al parco veicoli, agli utenti, alle prenotazioni e ai pagamenti.
+
+Per ciascun veicolo, identificato da un codice univoco, si vogliono memorizzare: tipologia (auto, bici, scooter, monopattino), marca, modello, targa, ultima posizione GPS, stato attuale (disponibile, in uso, in ricarica, fuori servizio), numero di posti, livello di carica della batteria, chilometraggio totale, dati dell’assicurazione, data dell’ultima revisione. Inoltre si desidera tenere traccia degli interventi di manutenzione, registrando tipo di intervento, data, costo e officina di riparazione.
+
+Per ogni utente registrato al servizio si desidera tracciare: ID univoco, dati anagrafici (nome, cognome, codice fiscale, data di nascita), numero di telefono, indirizzo email, estremi della patente di guida se necessari (numero, data di scadenza, categoria), dati per la fatturazione, storico dei noleggi effettuati, stato del profilo (attivo, bloccato, in fase di verifica), data di registrazione, metodi di pagamento, ID di abbonamenti attivi.
+
+Riguardo alle stazioni di ricarica dei veicoli si vuole rappresentare: posizione GPS, stato corrente (libera, occupata, in manutenzione, fuori servizio) e tipologia di veicolo che può ricaricare.
+
+Per ogni noleggio, è necessario registrare: ID univoco, ID dell’utente che lo effettua, ID del veicolo utilizzato, data di inizio noleggio, data di fine noleggio, posizione GPS di inizio e fine noleggio, chilometri percorsi, durata del noleggio, costo totale, esito del pagamento.
+
+Si vuole modellare la struttura tariffaria del servizio con tariffe base a tempo per ciascuna tipologia di veicolo e la possibilità di acquistare abbonamenti (giornalieri, settimanali, mensili).
+
+\subsection{Glossario dei termini}
+
+\begin{table}
+\centering
+\begin{tabularx}{\textwidth}{|X|X|X|X|}
+\hline
+\textbf{Termine} & \textbf{Descrizione} & \textbf{Sinonimi} & \textbf{Collegamenti} \\ \hline
+Parco veicoli & Insieme dei veicoli facenti parte del serivizo & Flotta veicoli & - \\ \hline
+Veicolo & Mezzo di trasporto elettrico gestito dal servizio & Mezzo & - \\ \hline
+Cliente & Persona registrata al servizio di sharing & Utente, Consumatore & - \\ \hline
+Noleggio & Utilizzo di un veicolo per un certo periodo da parte di un cliente & Corsa, Utilizzo & - \\ \hline
+Manutenzione & Intervento tecnico effettuato su un veicolo & Riparazione, Intervento & - \\ \hline
+Centro di ricarica & Luogo dotato di colonnine per la ricarica dei veicoli & - & - \\ \hline
+Stazione di ricarica & Punto fisico in cui ricaricare i veicoli & Colonnina di ricarica & - \\ \hline
+Stato utente & Condizione attuale del profilo utente (attivo, sospeso, in stato di verifica) & Stato profilo, stato account & - \\ \hline
+Abbonamento & Piano tariffario prepagato (giornaliero, mensile, ecc.) & Pass & - \\ \hline
+Tariffa base & Costo del servizio per unità di tempo, differenziato per tipologia di veicolo & Prezzo, Costo & - \\ \hline
+Patente di guida & documento necessario per il noleggio di auto e scooter & - & - \\ \hline
+Dati di fatturazione & Informazioni dell'utente per ricevuta/fattura & - & - \\ \hline
+Dati di pagamento & Informazioni bancarie per saldare il costo del servizio & - & - \\ \hline
+Posizione GPS & Coordinate GPS che indicano la posizione di un Veicolo e/o Stazione di ricarica & Coordinate & - \\ \hline
+Stato veicolo & Condizione attuale di un veicolo (disponibile, in uso, in ricarica, fuori servizio) & Disponibilità veicolo & - \\ \hline
+Stato stazione & Condizione attuale di una stazione di ricarica (libera, occupata, in manutenzione, fuori servizio) & - & - \\ \hline
+Officina di riparazione & Struttura che effettua manutenzione dei veicoli & Centro assistenza & - \\ \hline
+
+
+\end{tabularx}
+\caption{Glossario dei termini}
+\label{table_glossario_termini}
+\end{table}
+
+\subsection{Eliminazione delle ambiguità}
+
+\subsection{Struttura dei requisiti}
+
+\subsection{Specifica operazioni}
+
+\subsubsection{Inserimenti}
+\begin{itemize}
+    \item Noleggio
+    \item Veicolo
+    \item Centro di ricarica
+    \item Stazione di ricarica
+    \item Cliente
+    \item Interventi tecnici
+    \item Officina di manutenzione
+    \item Dati di pagamento
+    \item Dati di fatturazione
+    \item Abbonamento
+\end{itemize}
+
+\subsubsection{Modifiche}
+
+\subsubsection{Cancellazioni}
+
+\subsection{Ricerche}
+
+
+
+
+\section{Progettazione concettuale}
+
+\subsection{Identificazione delle entità e relazioni}
+
+\subsection{Un primo scheletro dello schema}
+
+\subsection{Sviluppo delle componenti dello scheletro}
+
+\subsection{Unione delle componenti nello schema finale ridotto}
+
+\subsection{Dizionario dei dati}
+
+\subsection{Regole aziendali}
+
+\section{Progettazione logica}
+
+\subsection{Tavole dei volumi e delle operazioni}
+
+\subsection{Ristrutturazione dello schema concettuale}
+
+\subsection{Normalizzazione}
+
+\subsection{Traduzione verso il modello relazionale}
+
+\section{Codifica SQL}
+
+\subsection{Definizione dello schema}
+
+\subsection{Codifica delle operazioni}
+
+\section{Testing}
+
+\end{document}
