@@ -70,27 +70,58 @@ Officina di riparazione & Struttura che effettua manutenzione dei veicoli & Cent
 
 \subsection{Specifica operazioni}
 
-\subsubsection{Inserimenti}
-\begin{itemize}
-    \item Noleggio
-    \item Veicolo
-    \item Centro di ricarica
-    \item Stazione di ricarica
-    \item Cliente
-    \item Interventi tecnici
-    \item Officina di manutenzione
-    \item Dati di pagamento
-    \item Dati di fatturazione
-    \item Abbonamento
-\end{itemize}
+\newpage % tmp
 
-\subsubsection{Modifiche}
+\begin{enumerate}
+    \item \textbf{Veicolo:} 
+    \begin{itemize}
+        \item \textsc{inserimento:} aggiunta di un veicolo alla flotta
+        \item \textsc{modifica:} aggiornamento dei dati dello stato del veicolo (livello batteria, posizione GPS, km totali, manutenzioni) 
+        \item \textsc{cancellazione:} rimozione di un veicolo dalla flotta
+        \item \textsc{ricerca:} visualizzazione dei dettagli di uno o più veicoli per ID, targa, tipologia, livello di batteria, posizione
+    \end{itemize}
+    \item \textbf{Noleggio:}
+    \begin{itemize}
+        \item \textsc{inserimento:} avvio di un nuovo noleggio da parte di un cliente
+        \item \textsc{modifica:} aggiornamento dei dati (km percorsi, costo, durata) alla conclusione del noleggio
+        \item \textsc{ricerca:} visualizzare lo storico dei noleggi per utente, per veicolo, per periodo
+    \end{itemize}
+    \item \textbf{Clienti:}
+    \begin{itemize}
+        \item \textsc{inserimento:} registrazione di un nuovo utente al servizio
+        \item \textsc{modifica:} aggiornamento dei dati di pagamento, stato del profilo
+        \item \textsc{cancellazione:} rimozione dell'account di un utente
+        \item \textsc{ricerca:} visualizzazione dettagli di un utente per ID, dati anagrafici, email
+    \end{itemize}
+    \item \textbf{Manutenzioni:}
+    \begin{itemize}
+        \item \textsc{inserimento:} registrazione di un intervento tecnico per un veicolo
+        \item \textsc{ricerca:} visualizzazione lo storico di interventi per un veicolo
+    \end{itemize}
+    \item \textbf{Centri di ricarica:}
+    \begin{itemize}
+        \item \textsc{inserimento:} aggiunta di un nuovo centro di ricarica
+        \item \textsc{cancellazione:} rimozione di un centro di ricarica non più di competenza del servizio
+        \item \textsc{ricerca:} visualizzazione di un centro di ricarica in base a ID, zona geografica
+    \end{itemize}
+    \item \textbf{Stazioni di ricarica:}
+    \begin{itemize}
+        \item \textsc{inserimento:} aggiunta di una nuova stazione di ricarica
+        \item \textsc{modifica:} aggiornamento dello stato della colonnina
+        \item \textsc{cancellazione:} rimozione di una stazione non più di competenza del servizio
+        \item \textsc{ricerca:} visualizzazione di colonnine di ricarica in base a ID, zona geografica, centro di ricarica di cui fanno parte
+    \end{itemize}
+    \item \textbf{Tariffa:}
+    \begin{itemize}
+        \item \textsc{inserimento:} definizione della tariffa base per tipologia di veicolo
+        \item \textsc{modifica:} aggiornamento del prezzo di una tariffa base
+        \item \textsc{ricerca:} visualizzazione della tariffa base per tipologia di veicolo
+    \end{itemize}
+\end{enumerate}
 
 \subsubsection{Cancellazioni}
 
 \subsection{Ricerche}
-
-
 
 
 \section{Progettazione concettuale}
