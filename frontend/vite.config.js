@@ -19,7 +19,7 @@ export default defineConfig({
     proxy: {
       // tutte le chiamate che iniziano con /api saranno inoltrate a localhost:3000
       '/api': {
-        target: 'http://localhost:3000',
+        target: 'http://localhost:30000',
         changeOrigin: true,
         secure: false,
         // pathRewrite: { '^/api': '' } // Se il server non ha bisogno di /api
