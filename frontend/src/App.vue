@@ -364,8 +364,7 @@ const sections = ref([
       { name: 'PercentualeBatteria', label: 'Percentuale Batteria (%)', type: 'number', placeholder: '85', required: false },
       { name: 'gpsQuery', label: 'Coordinate GPS', type: 'text', placeholder: '44.4949, 11.3426', required: false },
       { name: 'StatoAttuale', label: 'Stato Attuale', type: 'select', options: ['Disponibile', 'In uso', 'In manutenzione', 'Fuori servizio'], required: true },
-      { name: 'ChilometraggioTotale', label: 'Chilometraggio Totale (km)', type: 'number', placeholder: '15000', required: false },
-      { name: 'TariffaCategoria', label: 'Tariffa Categoria', type: 'select', options: ['Base', 'Premium', 'Luxury'], required: true }
+      { name: 'ChilometraggioTotale', label: 'Chilometraggio Totale (km)', type: 'number', placeholder: '15000', required: false }
     ]
   },
   {
