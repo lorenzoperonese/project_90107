@@ -9,7 +9,7 @@ const operationDefinitions = {
   'read-tipologia': { id: 'read-tipologia', name: 'Ricerca per Tipologia', icon: '🚗', color: 'bg-blue-500' },
   'read-vehicle': { id: 'read-vehicle', name: 'Storico Veicolo', icon: '🚗', color: 'bg-blue-500' },
   'read-operator': { id: 'read-operator', name: 'Storico Operatore', icon: '👤', color: 'bg-blue-500' },
-  'read-zona': { id: 'read-zona', name: 'Ricerca per Zona', icon: '🗺️', color: 'bg-blue-500' },
+  'read-centro': { id: 'read-centro', name: 'Ricerca', icon: '🗺️', color: 'bg-blue-500' },
   'read-servizi': { id: 'read-servizi', name: 'Ricerca per Servizi', icon: '🛎️', color: 'bg-blue-500' }
 }
 
@@ -24,7 +24,7 @@ const buttonTexts = {
   'read-tipologia': 'Cerca per Tipologia',
   'read-vehicle': 'Storico Veicolo',
   'read-operator': 'Storico Operatore',
-  'read-zona': 'Cerca per Zona',
+  'read-centro': 'Cerca Centro',
   'read-servizi': 'Cerca per Servizi'
 }
 
@@ -56,7 +56,7 @@ export function useOperations() {
         }],
         'read-vehicle': [{ name: 'VeicoloID', label: 'ID Veicolo', type: 'number', placeholder: '123' }],
         'read-operator': [{ name: 'OperatoreAccountID', label: 'ID Operatore', type: 'number', placeholder: '456' }],
-        'read-zona': [{ name: 'Zona', label: 'Zona Geografica', type: 'text', placeholder: 'Centro' }],
+        'read-centro': [{ }],
         'read-servizi': [{ name: 'Servizio', label: 'Servizio Accessorio', type: 'text', placeholder: 'Bar' }]
       }
       return readFields[selectedOperation] || [{ name: 'ClienteAccountID', label: 'ID Cliente', type: 'number', placeholder: '123' }]

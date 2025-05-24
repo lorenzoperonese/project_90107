@@ -200,19 +200,12 @@ export function useApi() {
           headers: { 'Content-Type': 'application/json' }
         })
         
-      case 'read-zona':
-        if (!formData.Zona) throw new Error('Zona richiesta per la ricerca')
-        return fetch(`${baseUrl}/zona/${formData.Zona}`, {
+      case 'read-centro':
+        return fetch(`${baseUrl}`, {
           method: 'GET',
           headers: { 'Content-Type': 'application/json' }
         })
-        
-      case 'read-servizi':
-        if (!formData.Servizio) throw new Error('Servizio richiesto per la ricerca')
-        return fetch(`${baseUrl}/servizi/${formData.Servizio}`, {
-          method: 'GET',
-          headers: { 'Content-Type': 'application/json' }
-        })
+      
         
       default:
         throw new Error('Operazione non supportata')

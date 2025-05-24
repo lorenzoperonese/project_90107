@@ -15,18 +15,28 @@ const stazioniRicaricaController = {
       // Parsing GPS
       const gpsFormatted = parseGpsString(GPS);
 
-      const query = `
+      let query = `
         INSERT INTO StazioneRicarica (
           TipologiaPresa, GPS, StatoCorrente, CentroRicaricaIndirizzo
         ) VALUES (?, ST_PointFromText(?), ?, ?)
       `;
 
+      if (!CentroRicaricaIndirizzo) {
+        query = `
+          INSERT INTO StazioneRicarica (
+            TipologiaPresa, GPS, StatoCorrente
+          ) VALUES (?, ST_PointFromText(?), ?)
+        `;
+      }
+
       const values = [
         TipologiaPresa,
         gpsFormatted,
-        StatoCorrente || 'libera',
-        CentroRicaricaIndirizzo
+        StatoCorrente || 'libera'
       ];
+      if (CentroRicaricaIndirizzo) {
+        values.push(CentroRicaricaIndirizzo);
+      }
 
       const [result] = await pool.execute(query, values);
 
@@ -86,7 +96,7 @@ const stazioniRicaricaController = {
     try {
       const { id } = req.params;
 
-      const query = 'DELETE FROM StazioneRicarica WHERE ID = ?';
+      const query = 'UPDATE StazioneRicarica SET StatoCorrente = "eliminata" WHERE ID = ?';
       const [result] = await pool.execute(query, [id]);
 
       if (result.affectedRows === 0) {

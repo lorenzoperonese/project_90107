@@ -97,8 +97,8 @@ export const sections = [
     operations: ['create', 'update', 'read-vehicle', 'read-operator'],
     fields: [
       { name: 'ID', label: 'ID Ricarica', type: 'number', placeholder: '1', required: false, showOnlyFor: ['update'] },
-      { name: 'OperatoreAccountID', label: 'ID Account Operatore', type: 'number', placeholder: '456', required: true },
-      { name: 'VeicoloID', label: 'ID Veicolo', type: 'number', placeholder: '789', required: true },
+      { name: 'OperatoreAccountID', label: 'ID Account Operatore', type: 'number', placeholder: '456', required: true, showOnlyFor: ['create', 'read-operator'] },
+      { name: 'VeicoloID', label: 'ID Veicolo', type: 'number', placeholder: '789', required: true, showOnlyFor: ['create', 'read-vehicle'] },
       { name: 'StazioneRicaricaID', label: 'ID Stazione Ricarica', type: 'number', placeholder: '12', required: true, showOnlyFor: ['create'] },
       { name: 'CostoSessione', label: 'Costo Sessione (€)', type: 'number', placeholder: '12.50', required: false, showOnlyFor: ['update'] },
       { name: 'KWhCaricati', label: 'KWh Caricati', type: 'number', placeholder: '45.5', required: false, showOnlyFor: ['update'] }
@@ -108,12 +108,10 @@ export const sections = [
     title: 'Centri di Ricarica',
     description: 'Gestione centri ricarica',
     icon: '🏢',
-    operations: ['create', 'delete', 'read-zona', 'read-servizi'],
+    operations: ['create', 'delete', 'read-centro'],
     fields: [
       { name: 'Indirizzo', label: 'Indirizzo', type: 'text', placeholder: 'Via Bologna 123, Bologna', required: true },
-      { name: 'NumeroStazioniDisponibili', label: 'Numero Stazioni Disponibili', type: 'number', placeholder: '8', required: true, showOnlyFor: ['create'] },
-      { name: 'Zona', label: 'Zona Geografica', type: 'text', placeholder: 'Centro', required: false, showOnlyFor: ['read-zona'] },
-      { name: 'Servizio', label: 'Servizio Accessorio', type: 'text', placeholder: 'Bar', required: false, showOnlyFor: ['read-servizi'] }
+      
     ]
   },
   {
@@ -127,7 +125,7 @@ export const sections = [
       { name: 'GPS', label: 'Coordinate GPS', type: 'text', placeholder: '44.4949, 11.3426', required: true, showOnlyFor: ['create'] },
       { name: 'StatoCorrente', label: 'Stato Corrente', type: 'select', options: ['libera', 'occupata', 'in_manutenzione', 'fuori_servizio'], required: true },
       { name: 'CentroRicaricaIndirizzo', label: 'Indirizzo Centro Ricarica', type: 'text', placeholder: 'Via Bologna 123, Bologna', required: false, showOnlyFor: ['create'] },
-      { name: 'Zona', label: 'Zona Geografica', type: 'text', placeholder: 'Centro', required: false, showOnlyFor: ['read'] }
+      
     ]
   },
   {

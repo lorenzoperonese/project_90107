@@ -12,8 +12,8 @@ const ricaricheController = {
 
       const query = `
         INSERT INTO Ricarica (
-          OperatoreAccountID, VeicoloID, StazioneRicaricaID, DataInizio
-        ) VALUES (?, ?, ?, NOW())
+          OperatoreAccountID, VeicoloID, StazioneRicaricaID
+        ) VALUES (?, ?, ?)
       `;
 
       const values = [
@@ -107,8 +107,7 @@ const ricaricheController = {
         FROM Ricarica r
         LEFT JOIN Veicolo v ON r.VeicoloID = v.ID
         LEFT JOIN StazioneRicarica s ON r.StazioneRicaricaID = s.ID
-        LEFT JOIN OperatoreRicarica op ON r.OperatoreAccountID = op.AccountID
-        LEFT JOIN Account acc ON op.AccountID = acc.ID
+        LEFT JOIN Account acc ON r.OperatoreAccountID = acc.ID
         WHERE r.VeicoloID = ?
         ORDER BY r.DataInizio DESC
       `;

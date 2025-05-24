@@ -9,9 +9,8 @@ router.post('/', centriRicaricaController.insertCentroRicarica);
 router.delete('/:indirizzo', centriRicaricaController.deleteCentroRicarica);
 
 // Operazione 6.c - Ricerca1: visualizzazione centro per zona geografica
-router.get('/zona/:zona', centriRicaricaController.getCentriByZona);
+router.get('/', centriRicaricaController.getCentri);
 
-// Operazione 6.d - Ricerca2: visualizzazione centro per servizi accessori
-router.get('/servizi/:servizio', centriRicaricaController.getCentriByServizi);
+
 
 module.exports = router; 

@@ -6,15 +6,14 @@ const centriRicaricaController = {
     try {
       const {
         Indirizzo,
-        NumeroStazioniDisponibili
       } = req.body;
 
       const query = `
-        INSERT INTO CentroRicarica (Indirizzo, NumeroStazioniDisponibili)
-        VALUES (?, ?)
+        INSERT INTO CentroRicarica (Indirizzo)
+        VALUES (?)
       `;
 
-      const values = [Indirizzo, NumeroStazioniDisponibili];
+      const values = [Indirizzo];
 
       await pool.execute(query, values);
 
@@ -23,7 +22,6 @@ const centriRicaricaController = {
         message: 'Centro di ricarica aggiunto con successo',
         data: {
           Indirizzo,
-          NumeroStazioniDisponibili
         }
       });
     } catch (error) {
@@ -68,77 +66,40 @@ const centriRicaricaController = {
     }
   },
 
-  // Operazione 6.c - Ricerca1: visualizzazione centro per zona geografica
-  getCentriByZona: async (req, res) => {
+  // Operazione 6.c - Ricerca1: visualizzazione dei centri ordinati in base al numero di stazioni disponibili
+  getCentri: async (req, res) => {
     try {
-      const { zona } = req.params;
 
       const query = `
-        SELECT 
-          c.Indirizzo, c.NumeroStazioniDisponibili,
-          COUNT(s.ID) as StazioniAttive
-        FROM CentroRicarica c
-        LEFT JOIN StazioneRicarica s ON c.Indirizzo = s.CentroRicaricaIndirizzo
-        AND s.StatoCorrente != 'eliminata'
-        WHERE c.Indirizzo LIKE ?
-        GROUP BY c.Indirizzo, c.NumeroStazioniDisponibili 
-        ORDER BY c.Indirizzo
+        SELECT *
+        FROM CentroRicarica
+        ORDER BY NumeroStazioniDisponibili DESC
       `;
 
-      const [centri] = await pool.execute(query, [`%${zona}%`]);
-      
+      const [centri] = await pool.execute(query);
+      if (centri.length === 0) {
+        return res.status(404).json({
+          success: false,
+          message: 'Nessun centro di ricarica trovato'
+        });
+      }
       return res.status(200).json({
         success: true,
-        message: 'Centri di ricarica per zona recuperati con successo',
+        message: 'Centri di ricarica recuperati con successo',
         count: centri.length,
         data: centri
       });
-    } catch (error) {
-      console.error('Errore durante il recupero dei centri per zona:', error);
+    } catch (error) { 
+      console.error('Errore durante il recupero dei centri di ricarica:', error);
       return res.status(500).json({
         success: false,
-        message: 'Errore durante il recupero dei centri per zona',
-        error: error.message
-      });
-    }
-  },
-
-  // Operazione 6.d - Ricerca2: visualizzazione centro per servizi accessori
-  getCentriByServizi: async (req, res) => {
-    try {
-      const { servizio } = req.params;
-
-      // Assumendo che i servizi accessori siano memorizzati in una tabella separata
-      // o come parte dell'indirizzo/descrizione del centro
-      const query = `
-        SELECT 
-          c.Indirizzo, c.NumeroStazioniDisponibili,
-          COUNT(s.ID) as StazioniAttive
-        FROM CentroRicarica c
-        LEFT JOIN StazioneRicarica s ON c.Indirizzo = s.CentroRicaricaIndirizzo
-        AND s.StatoCorrente != 'eliminata'
-        WHERE c.Indirizzo LIKE ? OR c.NumeroStazioniDisponibili > 0
-        GROUP BY c.Indirizzo, c.NumeroStazioniDisponibili 
-        ORDER BY c.NumeroStazioniDisponibili DESC
-      `;
-
-      const [centri] = await pool.execute(query, [`%${servizio}%`]);
-      
-      return res.status(200).json({
-        success: true,
-        message: 'Centri di ricarica con servizi accessori recuperati con successo',
-        count: centri.length,
-        data: centri
-      });
-    } catch (error) {
-      console.error('Errore durante il recupero dei centri per servizi:', error);
-      return res.status(500).json({
-        success: false,
-        message: 'Errore durante il recupero dei centri per servizi',
+        message: 'Errore durante il recupero dei centri di ricarica',
         error: error.message
       });
     }
   }
+
+
 };
 
 module.exports = centriRicaricaController; 
