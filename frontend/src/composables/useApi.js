@@ -110,8 +110,8 @@ export function useApi() {
         })
         
       case 'read':
-        if (!formData.AccountID) throw new Error('ID Account richiesto per la ricerca')
-        return fetch(`${baseUrl}/${formData.AccountID}`, {
+        if (!formData.ClienteAccountID) throw new Error('ID Account richiesto per la ricerca')
+        return fetch(`${baseUrl}/${formData.ClienteAccountID}`, {
           method: 'GET',
           headers: { 'Content-Type': 'application/json' }
         })

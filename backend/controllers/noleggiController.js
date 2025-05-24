@@ -19,16 +19,17 @@ const noleggiController = {
 
       const query = `
         INSERT INTO Noleggia (
-          ClienteAccountID, VeicoloID, DataInizio, GPSInizio, EsitoPagamento
-        ) VALUES (?, ?, NOW(), ?, 'in_attesa')
+          ClienteAccountID, VeicoloID, GPSInizio
+        ) VALUES (?, ?, ST_PointFromText(?))
       `;
 
       const values = [
         ClienteAccountID,
         VeicoloID,
-        gpsInizioFormatted ? `ST_PointFromText('${gpsInizioFormatted}')` : null
+        gpsInizioFormatted
       ];
 
+      console.log(values)
       const [result] = await pool.execute(query, values);
 
       return res.status(201).json({
@@ -72,17 +73,14 @@ const noleggiController = {
       const query = `
         UPDATE Noleggia 
         SET DataFine = NOW(), 
-            GPSFine = ${gpsFineFormatted ? 'ST_PointFromText(?)' : 'NULL'}, 
+            GPSFine = ST_PointFromText(?),
             ChilometriPercorsi = ?, 
-            Costo = ?, 
-            DurataMinuti = ?, 
             EsitoPagamento = ?
         WHERE ID = ?
       `;
 
-      const values = gpsFineFormatted 
-        ? [gpsFineFormatted, ChilometriPercorsi, Costo, DurataMinuti, EsitoPagamento, id]
-        : [ChilometriPercorsi, Costo, DurataMinuti, EsitoPagamento, id];
+      const values = [gpsFineFormatted, ChilometriPercorsi, EsitoPagamento, id];
+      console.log(values)
 
       const [result] = await pool.execute(query, values);
 
@@ -121,11 +119,7 @@ const noleggiController = {
 
       const query = `
         SELECT 
-          n.ID, n.VeicoloID, n.DataInizio, n.DataFine,
-          ST_X(n.GPSInizio) as LatitudineInizio, ST_Y(n.GPSInizio) as LongitudineInizio,
-          ST_X(n.GPSFine) as LatitudineFine, ST_Y(n.GPSFine) as LongitudineFine,
-          n.ChilometriPercorsi, n.Costo, n.DurataMinuti, n.EsitoPagamento,
-          v.Targa as VeicoloTarga, v.Modello as VeicoloModello, v.Marca as VeicoloMarca
+          n.*, v.Targa as VeicoloTarga, v.Modello as VeicoloModello, v.Marca as VeicoloMarca
         FROM Noleggia n
         LEFT JOIN Veicolo v ON n.VeicoloID = v.ID
         WHERE n.ClienteAccountID = ?

@@ -2,194 +2,6 @@ const { pool } = require('../config/database');
 const bcrypt = require('bcrypt');
 
 const clientiController = {
-  // GET /api/clienti - Visualizza clienti con filtri opzionali
-  getClienti: async (req, res) => {
-    try {
-      let query = `
-        SELECT 
-          c.AccountID, c.Nome, c.Cognome, c.DataNascita, c.LuogoNascita,
-          c.IndirizzoResidenza, c.PatenteNumero, c.DocumentoNumero,
-          a.Email, a.Telefono, a.Stato, a.DataRegistrazione
-        FROM Cliente c
-        JOIN Account a ON c.AccountID = a.ID
-      `;
-      const params = [];
-      const conditions = [];
-
-      // Filtri opzionali
-      if (req.query.id) {
-        conditions.push('c.AccountID = ?');
-        params.push(req.query.id);
-      }
-      if (req.query.email) {
-        conditions.push('a.Email LIKE ?');
-        params.push(`%${req.query.email}%`);
-      }
-      if (req.query.nome) {
-        conditions.push('c.Nome LIKE ?');
-        params.push(`%${req.query.nome}%`);
-      }
-      if (req.query.cognome) {
-        conditions.push('c.Cognome LIKE ?');
-        params.push(`%${req.query.cognome}%`);
-      }
-
-      if (conditions.length > 0) {
-        query += ' WHERE ' + conditions.join(' AND ');
-      }
-
-      const [clienti] = await pool.execute(query, params);
-      
-      return res.status(200).json({
-        success: true,
-        message: 'Clienti recuperati con successo',
-        count: clienti.length,
-        data: clienti
-      });
-    } catch (error) {
-      console.error('Errore durante il recupero dei clienti:', error);
-      return res.status(500).json({
-        success: false,
-        message: 'Errore durante il recupero dei clienti',
-        error: error.message
-      });
-    }
-  },
-
-  // POST /api/clienti - Crea nuovo cliente
-  createCliente: async (req, res) => {
-    const connection = await pool.getConnection();
-    try {
-      await connection.beginTransaction();
-
-      const {
-        Nome,
-        Cognome,
-        DataNascita,
-        LuogoNascita,
-        IndirizzoResidenza,
-        PatenteNumero,
-        DocumentoNumero,
-        Email,
-        Password,
-        Telefono
-      } = req.body;
-
-      // Hash della password
-      const hashedPassword = await bcrypt.hash(Password, 10);
-
-      // Inserimento Account
-      const accountQuery = `
-        INSERT INTO Account (Email, Password, Telefono, Stato, Dipendente)
-        VALUES (?, ?, ?, 'in_fase_di_verifica', FALSE)
-      `;
-      const [accountResult] = await connection.execute(accountQuery, [Email, hashedPassword, Telefono]);
-      const accountId = accountResult.insertId;
-
-      // Inserimento Cliente
-      const clienteQuery = `
-        INSERT INTO Cliente (
-          AccountID, Nome, Cognome, DataNascita, LuogoNascita,
-          IndirizzoResidenza, PatenteNumero, DocumentoNumero
-        ) VALUES (?, ?, ?, ?, ?, ?, ?, ?)
-      `;
-      await connection.execute(clienteQuery, [
-        accountId, Nome, Cognome, DataNascita, LuogoNascita,
-        IndirizzoResidenza, PatenteNumero, DocumentoNumero
-      ]);
-
-      await connection.commit();
-
-      return res.status(201).json({
-        success: true,
-        message: 'Cliente creato con successo',
-        data: {
-          AccountID: accountId,
-          Nome,
-          Cognome,
-          Email
-        }
-      });
-    } catch (error) {
-      await connection.rollback();
-      console.error('Errore durante la creazione del cliente:', error);
-      
-      return res.status(500).json({
-        success: false,
-        message: 'Errore durante la creazione del cliente',
-        error: error.message
-      });
-    } finally {
-      connection.release();
-    }
-  },
-
-  // PUT /api/clienti/:id - Aggiorna cliente esistente
-  updateCliente: async (req, res) => {
-    const connection = await pool.getConnection();
-    try {
-      await connection.beginTransaction();
-      
-      const { id } = req.params;
-      const accountFields = [];
-      const clienteFields = [];
-      const accountValues = [];
-      const clienteValues = [];
-
-      // Campi Account aggiornabili
-      const accountAllowedFields = ['Email', 'Telefono', 'Stato'];
-      accountAllowedFields.forEach(field => {
-        if (req.body[field] !== undefined) {
-          accountFields.push(`${field} = ?`);
-          accountValues.push(req.body[field]);
-        }
-      });
-
-      // Campi Cliente aggiornabili
-      const clienteAllowedFields = [
-        'Nome', 'Cognome', 'DataNascita', 'LuogoNascita',
-        'IndirizzoResidenza', 'PatenteNumero', 'DocumentoNumero'
-      ];
-      clienteAllowedFields.forEach(field => {
-        if (req.body[field] !== undefined) {
-          clienteFields.push(`${field} = ?`);
-          clienteValues.push(req.body[field]);
-        }
-      });
-
-      // Aggiorna Account se ci sono campi
-      if (accountFields.length > 0) {
-        accountValues.push(id);
-        const accountQuery = `UPDATE Account SET ${accountFields.join(', ')} WHERE ID = ?`;
-        await connection.execute(accountQuery, accountValues);
-      }
-
-      // Aggiorna Cliente se ci sono campi
-      if (clienteFields.length > 0) {
-        clienteValues.push(id);
-        const clienteQuery = `UPDATE Cliente SET ${clienteFields.join(', ')} WHERE AccountID = ?`;
-        await connection.execute(clienteQuery, clienteValues);
-      }
-
-      await connection.commit();
-
-      return res.status(200).json({
-        success: true,
-        message: 'Cliente aggiornato con successo',
-        data: { AccountID: id }
-      });
-    } catch (error) {
-      await connection.rollback();
-      console.error('Errore durante l\'aggiornamento del cliente:', error);
-      return res.status(500).json({
-        success: false,
-        message: 'Errore durante l\'aggiornamento del cliente',
-        error: error.message
-      });
-    } finally {
-      connection.release();
-    }
-  },
 
   // DELETE /api/clienti/:id - Elimina cliente
   deleteCliente: async (req, res) => {
@@ -199,21 +11,9 @@ const clientiController = {
       
       const { id } = req.params;
 
-      // Elimina Cliente (CASCADE eliminerà anche Account)
-      const clienteQuery = 'DELETE FROM Cliente WHERE AccountID = ?';
-      const [clienteResult] = await connection.execute(clienteQuery, [id]);
-
-      if (clienteResult.affectedRows === 0) {
-        return res.status(404).json({
-          success: false,
-          message: 'Cliente non trovato'
-        });
-      }
-
       // Elimina Account
-      const accountQuery = 'DELETE FROM Account WHERE ID = ?';
+      const accountQuery = 'UPDATE Account SET Stato = "eliminato" WHERE ID = ?';
       await connection.execute(accountQuery, [id]);
-
       await connection.commit();
 
       return res.status(200).json({
@@ -246,12 +46,24 @@ const clientiController = {
         DataNascita,
         LuogoNascita,
         IndirizzoResidenza,
-        PatenteNumero,
         DocumentoNumero,
+        DocumentoScadenza,
+        EnteRilascioDocumento,
         Email,
         Password,
         Telefono
       } = req.body;
+
+      console.log('Dati ricevuti per la creazione del cliente:', {
+        Nome,
+        Cognome,
+        DataNascita,
+        LuogoNascita,
+        IndirizzoResidenza,
+        DocumentoNumero,
+        Email,
+        Telefono
+      });
 
       // Hash della password
       const hashedPassword = await bcrypt.hash(Password, 10);
@@ -264,16 +76,26 @@ const clientiController = {
       const [accountResult] = await connection.execute(accountQuery, [Email, hashedPassword, Telefono]);
       const accountId = accountResult.insertId;
 
+      // Insert Documento
+      const documentoQuery = `
+        INSERT INTO Documento (Numero, Scadenza, EnteRilascio)
+        VALUES (?, ?, ?)
+      `;
+      await connection.execute(documentoQuery, [
+        DocumentoNumero, DocumentoScadenza, EnteRilascioDocumento
+      ]);
+
+
       // Inserimento Cliente
       const clienteQuery = `
         INSERT INTO Cliente (
           AccountID, Nome, Cognome, DataNascita, LuogoNascita,
-          IndirizzoResidenza, PatenteNumero, DocumentoNumero
-        ) VALUES (?, ?, ?, ?, ?, ?, ?, ?)
+          IndirizzoResidenza, DocumentoNumero
+        ) VALUES (?, ?, ?, ?, ?, ?, ?)
       `;
       await connection.execute(clienteQuery, [
         accountId, Nome, Cognome, DataNascita, LuogoNascita,
-        IndirizzoResidenza, PatenteNumero, DocumentoNumero
+        IndirizzoResidenza, DocumentoNumero
       ]);
 
       await connection.commit();
@@ -306,10 +128,26 @@ const clientiController = {
   updatePaymentData: async (req, res) => {
     try {
       const { id } = req.params;
-      const { Email, Telefono } = req.body;
+      const { NumeroCarta, Intestatario, CVV, Scadenza } = req.body;
+      console.log('Dati ricevuti per l\'aggiornamento del metodo di pagamento:', {
+        NumeroCarta,
+        Intestatario,
+        CVV,
+        Scadenza
+      });
 
-      const query = `UPDATE Account SET Email = ?, Telefono = ? WHERE ID = ?`;
-      const [result] = await pool.execute(query, [Email, Telefono, id]);
+      const query = `INSERT INTO MetodoPagamento (NumeroCarta, Intestatario, CVV, Scadenza) 
+                      VALUES (?, ?, ?, ?)`
+      
+      // Esegui l'inserimento o l'aggiornamento del metodo di pagamento
+      const [result] = await pool.execute(query, [NumeroCarta, Intestatario, CVV, Scadenza]);
+
+      const updateAccountQuery = `
+        UPDATE Account SET MetodoPagamento = ?
+        WHERE ID = ?
+      `;
+      await pool.execute(updateAccountQuery, [NumeroCarta, id]);
+
 
       if (result.affectedRows === 0) {
         return res.status(404).json({
@@ -321,7 +159,13 @@ const clientiController = {
       return res.status(200).json({
         success: true,
         message: 'Dati di pagamento aggiornati con successo',
-        data: { AccountID: id, Email, Telefono }
+        data: {
+          AccountID: id,
+          NumeroCarta,
+          Intestatario,
+          CVV,
+          Scadenza
+        }
       });
     } catch (error) {
       console.error('Errore durante l\'aggiornamento dei dati di pagamento:', error);
@@ -337,8 +181,19 @@ const clientiController = {
   updateLicenseData: async (req, res) => {
     try {
       const { id } = req.params;
-      const { PatenteNumero } = req.body;
-
+      const { PatenteNumero, PatenteScadenza, PatenteEnteRilascio, PatenteDataRilascio, AB } = req.body;
+      let AutoAbilitata = 0;
+      if (AB === 'B') {
+        AutoAbilitata = 1;
+      }
+      
+      // Insert Patente
+      const patenteQuery = `
+        INSERT INTO Patente (Numero, Scadenza, EnteRilascio, DataRilascio, AutoAbilitata)
+        VALUES (?, ?, ?, ?, ?)
+      `;
+      await pool.execute(patenteQuery, [PatenteNumero, PatenteScadenza, PatenteEnteRilascio, PatenteDataRilascio, AutoAbilitata]);
+      
       const query = `UPDATE Cliente SET PatenteNumero = ? WHERE AccountID = ?`;
       const [result] = await pool.execute(query, [PatenteNumero, id]);
 
@@ -352,7 +207,14 @@ const clientiController = {
       return res.status(200).json({
         success: true,
         message: 'Dati patente aggiornati con successo',
-        data: { AccountID: id, PatenteNumero }
+        data: {
+          AccountID: id,
+          PatenteNumero,
+          PatenteScadenza,
+          PatenteEnteRilascio,
+          PatenteDataRilascio,
+          AutoAbilitata
+        }
       });
     } catch (error) {
       console.error('Errore durante l\'aggiornamento dei dati patente:', error);

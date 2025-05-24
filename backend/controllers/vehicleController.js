@@ -154,7 +154,7 @@ const vehicleController = {
       const { id } = req.params;
       console.log('ID ricevuto per la cancellazione:', id);
       
-      const query = 'DELETE FROM Veicolo WHERE ID = ?';
+      const query = 'UPDATE Veicolo SET StatoAttuale = "eliminato" WHERE ID = ?';
       const [result] = await pool.execute(query, [id]);
       
       if (result.affectedRows === 0) {
@@ -185,11 +185,7 @@ const vehicleController = {
       console.log('Targa ricevuta:', targa);
       
       const query = `
-        SELECT 
-          ID, Targa, Tipologia, ScadenzaRevisione, NumeroPolizzaAssicurativa,
-          Modello, Marca, NumeroPosti, DataImmatricolazione, PercentualeBatteria,
-          ST_X(GPS) as Latitudine, ST_Y(GPS) as Longitudine,
-          StatoAttuale, ChilometraggioTotale
+        SELECT *
         FROM Veicolo 
         WHERE Targa = ?
       `;
@@ -225,13 +221,9 @@ const vehicleController = {
       console.log('Tipologia ricevuta:', tipologia);
 
       const query = `
-        SELECT 
-          ID, Targa, Tipologia, ScadenzaRevisione, NumeroPolizzaAssicurativa,
-          Modello, Marca, NumeroPosti, DataImmatricolazione, PercentualeBatteria,
-          ST_X(GPS) as Latitudine, ST_Y(GPS) as Longitudine,
-          StatoAttuale, ChilometraggioTotale
+        SELECT *
         FROM Veicolo 
-        WHERE Tipologia = ? AND PercentualeBatteria > 20
+        WHERE Tipologia = ? AND PercentualeBatteria > 20 AND StatoAttuale == 'disponibile'
         ORDER BY PercentualeBatteria DESC
       `;
 
