@@ -2,10 +2,12 @@ const express = require('express');
 const router = express.Router();
 const manutenzioniController = require('../controllers/manutenzioniController');
 
-// Operazione 4.a - Inserimento: registrazione di un intervento tecnico per un veicolo
-router.post('/', manutenzioniController.insertManutenzione);
+// Operazioni per gli interventi tecnici
+router.post('/interventi', manutenzioniController.insertIntervento);
+router.get('/interventi/veicolo/:veicoloId', manutenzioniController.getInterventiByVehicle);
 
-// Operazione 4.b - Ricerca: visualizzazione storico manutenzioni per un veicolo
-router.get('/veicolo/:veicoloId', manutenzioniController.getManutenzioniByVehicle);
+// Operazioni per le revisioni
+router.post('/revisioni', manutenzioniController.insertRevisione);
+router.get('/revisioni/veicolo/:veicoloId', manutenzioniController.getRevisioniByVehicle);
 
-module.exports = router; 
+module.exports = router;
