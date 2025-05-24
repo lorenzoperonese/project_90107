@@ -17,15 +17,15 @@ export const sections = [
           { value: 'monopattino', label: 'Monopattino Elettrico' }
         ], 
         required: true, 
-        showOnlyFor: ['create', 'update']
+        showOnlyFor: ['create']
       },
-      { name: 'Targa', label: 'Targa', type: 'text', placeholder: 'AB123CD', required: true, showOnlyFor: ['create', 'update'], requiresVehicleType: ['auto', 'scooter'] },
-      { name: 'ScadenzaRevisione', label: 'Scadenza Revisione', type: 'date', required: true, showOnlyFor: ['create', 'update'], requiresVehicleType: ['auto', 'scooter'] },
-      { name: 'NumeroPolizzaAssicurativa', label: 'Numero Polizza Assicurativa', type: 'text', placeholder: 'POL123456789', required: true, showOnlyFor: ['create', 'update'], requiresVehicleType: ['auto', 'scooter'] },
-      { name: 'Modello', label: 'Modello', type: 'text', placeholder: 'Model S', required: true, showOnlyFor: ['create', 'update'] },
-      { name: 'Marca', label: 'Marca', type: 'text', placeholder: 'Tesla', required: true, showOnlyFor: ['create', 'update'] },
-      { name: 'NumeroPosti', label: 'Numero Posti', type: 'number', placeholder: '5', required: true, showOnlyFor: ['create', 'update'], requiresVehicleType: ['auto', 'scooter'] },
-      { name: 'DataImmatricolazione', label: 'Data Immatricolazione', type: 'date', required: true, showOnlyFor: ['create', 'update'], requiresVehicleType: ['auto', 'scooter'] },
+      { name: 'Targa', label: 'Targa', type: 'text', placeholder: 'AB123CD', required: true, showOnlyFor: ['create' ], requiresVehicleType: ['auto', 'scooter'] },
+      { name: 'ScadenzaRevisione', label: 'Scadenza Revisione', type: 'date', required: true, showOnlyFor: ['create'], requiresVehicleType: ['auto', 'scooter'] },
+      { name: 'NumeroPolizzaAssicurativa', label: 'Numero Polizza Assicurativa', type: 'text', placeholder: 'POL123456789', required: true, showOnlyFor: ['create'], requiresVehicleType: ['auto', 'scooter'] },
+      { name: 'Modello', label: 'Modello', type: 'text', placeholder: 'Model S', required: true, showOnlyFor: ['create'] },
+      { name: 'Marca', label: 'Marca', type: 'text', placeholder: 'Tesla', required: true, showOnlyFor: ['create'] },
+      { name: 'NumeroPosti', label: 'Numero Posti', type: 'number', placeholder: '5', required: true, showOnlyFor: ['create'], requiresVehicleType: ['auto', 'scooter'] },
+      { name: 'DataImmatricolazione', label: 'Data Immatricolazione', type: 'date', required: true, showOnlyFor: ['create'], requiresVehicleType: ['auto', 'scooter'] },
       { name: 'PercentualeBatteria', label: 'Percentuale Batteria (%)', type: 'number', placeholder: '85', required: true, showOnlyFor: ['create', 'update'] },
       { name: 'gpsQuery', label: 'Coordinate GPS', type: 'text', placeholder: '44.4949, 11.3426', required: true, showOnlyFor: ['create', 'update'] },
       { name: 'StatoAttuale', label: 'Stato Attuale', type: 'select', options: ['disponibile', 'in_uso', 'in_ricarica', 'fuori_servizio'], required: true, showOnlyFor: ['create', 'update'] },
@@ -59,11 +59,17 @@ export const sections = [
       { name: 'DataNascita', label: 'Data di Nascita', type: 'date', required: true, showOnlyFor: ['create'] },
       { name: 'LuogoNascita', label: 'Luogo di Nascita', type: 'text', placeholder: 'Bologna, BO', required: true, showOnlyFor: ['create'] },
       { name: 'IndirizzoResidenza', label: 'Indirizzo Residenza', type: 'text', placeholder: 'Via Roma 123, Bologna', required: true, showOnlyFor: ['create'] },
-      { name: 'PatenteNumero', label: 'Numero Patente', type: 'text', placeholder: 'BO1234567A', required: false, showOnlyFor: ['create', 'update-license'] },
+      { name: 'PatenteNumero', label: 'Numero Patente', type: 'text', placeholder: 'BO1234567A', required: false, showOnlyFor: ['update-license'] },
       { name: 'DocumentoNumero', label: 'Numero Documento', type: 'text', placeholder: 'CI123456789', required: true, showOnlyFor: ['create'] },
-      { name: 'Email', label: 'Email', type: 'email', placeholder: 'mario.rossi@email.com', required: true, showOnlyFor: ['create', 'update-payment'] },
+      { name: 'DocumentoScadenza', label: 'Scadenza Documento', type: 'date', required: true, showOnlyFor: ['create'] },
+      { name: 'EnteRilascioDocumento', label: 'Ente Rilascio Documento', type: 'text', placeholder: 'Comune di Bologna', required: true, showOnlyFor: ['create'] },
+      { name: 'Email', label: 'Email', type: 'email', placeholder: 'mario.rossi@email.com', required: true, showOnlyFor: ['create'] },
       { name: 'Password', label: 'Password', type: 'password', placeholder: '********', required: true, showOnlyFor: ['create'] },
-      { name: 'Telefono', label: 'Telefono', type: 'text', placeholder: '+39 123 456 7890', required: false, showOnlyFor: ['create', 'update-payment'] }
+      { name: 'Telefono', label: 'Telefono', type: 'text', placeholder: '+39 123 456 7890', required: false, showOnlyFor: ['create'] },
+      { name: 'NumeroCarta', label: 'Numero Carta di Credito', type: 'text', placeholder: '1234 5678 9012 3456', required: false, showOnlyFor: ['update-payment'] },
+      { name: 'Scadenza', label: 'Scadenza Carta di Credito', type: 'date', required: false, showOnlyFor: ['update-payment'] },
+      { name: 'CVV', label: 'CVV Carta di Credito', type: 'text', placeholder: '123', required: false, showOnlyFor: ['update-payment'] },
+      { name: 'Intestatario', label: 'Intestatario Carta di Credito', type: 'text', placeholder: 'Mario Rossi', required: false, showOnlyFor: ['update-payment'] }
     ]
   },
   {
