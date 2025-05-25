@@ -223,7 +223,7 @@ const vehicleController = {
       const query = `
         SELECT *
         FROM Veicolo 
-        WHERE Tipologia = ? AND PercentualeBatteria > 20 AND StatoAttuale == 'disponibile'
+        WHERE Tipologia = ? AND PercentualeBatteria > 20 AND StatoAttuale = 'disponibile'
         ORDER BY PercentualeBatteria DESC
       `;
 
