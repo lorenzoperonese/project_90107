@@ -35,7 +35,6 @@ SELECT
     v.Targa,
     v.Modello,
     v.Marca,
-    v.Tipologia,
     COUNT(n.ID) AS NumeroNoleggi
 FROM 
     Veicolo v
@@ -45,7 +44,7 @@ WHERE
     v.Tipologia = ?
     AND n.DataInizio >= DATE_SUB(CURDATE(), INTERVAL 1 YEAR)
 GROUP BY 
-    v.ID, v.Targa, v.Modello, v.Marca, v.Tipologia
+    v.ID, v.Targa, v.Modello, v.Marca
 ORDER BY 
     NumeroNoleggi DESC
 LIMIT 10;
@@ -57,15 +56,16 @@ SELECT
 	v.Targa,
 	v.Modello,
 	v.Marca,
+    v.Tipologia,
 	COUNT(m.ID) AS NumeroInterventi
 FROM
 	Veicolo v
 JOIN
-	InterventoManutenzione m ON v.ID = m.VeicoloID
+	EsegueIntervento m ON v.ID = m.VeicoloID
 WHERE
-	m.DataIntervento >= DATE_SUB(CURDATE(), INTERVAL 1 YEAR)
+	m.Data >= DATE_SUB(CURDATE(), INTERVAL 1 YEAR)
 GROUP BY
-	v.ID, v.Targa, v.Modello, v.Marca
+	v.ID, v.Targa, v.Modello, v.Marca, v.Tipologia
 ORDER BY
 	NumeroInterventi DESC
 LIMIT 5;
@@ -126,12 +126,12 @@ VALUES (?, ?, ?, ?, ?);
 UPDATE Account_Attivo SET MetodoPagamento = ? WHERE ID = ?
 UPDATE Account_Attivo SET Stato = 'attivo' WHERE ID = ?
 
--- Op 3.c: Inserimento patente di guida
+-- Op 3.b: Inserimento patente di guida
 INSERT INTO Patente (Numero, Scadenza, EnteRilascio, DataRilascio, AutoAbilitata) VALUES (?, ?, ?, ?, ?)
 UPDATE Cliente SET PatenteNumero = ? WHERE AccountID = ?
 
 
--- Op: 3.b: Visualizzazione dei clienti con più di 50 noleggi nell'ultimo anno
+-- Op: 3.c: Visualizzazione dei clienti con più di 50 noleggi nell'ultimo anno
 SELECT 
     c.AccountID,
     c.Nome,
@@ -165,8 +165,17 @@ JOIN Account a ON c.AccountID = a.ID
 ORDER BY a.DataRegistrazione ASC
 LIMIT 10;
 
---Noleggi
--- Op 4.a: visualizzazione degli ultimi 5 noleggi che hanno effettuato un noleggio di un veicolo soggetto a intervento di riparazione
+-- Manutenzione
+-- Op 4.a: Inserimento di un nuovo intervento di manutenzione
+INSERT INTO EsegueIntervento (
+            VeicoloID, OfficinaID, Data, Costo, Tipologia, Descrizione
+          ) VALUES (?, ?, ?, ?, ?, ?)
+
+INSERT INTO EsegueRevisione (
+            VeicoloID, OfficinaID, Data, Costo, Note
+          ) VALUES (?, ?, ?, ?, ?)
+
+-- Op 4.c: visualizzazione degli ultimi 5 noleggi (e relativi clienti) di un veicolo soggetto a intervento di riparazione
 SELECT DISTINCT
     cai.ID AS AccountID,
     cai.Nome,
@@ -199,7 +208,7 @@ ORDER BY CostoMedio DESC
 LIMIT 5;
 
 
--- 4.c: Andamento mensile dei costi di manutenzione
+-- 4.d: Andamento mensile dei costi di manutenzione
 SELECT 
     YEAR(Data) AS Anno,
     MONTH(Data) AS Mese,
@@ -298,5 +307,5 @@ WHERE r.DataFine IS NOT NULL
 GROUP BY sr.ID
 ORDER BY DurataMediaMinuti DESC;
 
--- Op 8.e: Modifica tariffe di ricarica
+-- Op 8.a: Modifica tariffe di ricarica
 UPDATE Tariffa SET CostoAlMinuto = ? WHERE CategoriaVeicolo = ?

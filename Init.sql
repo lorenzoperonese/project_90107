@@ -53,11 +53,11 @@ INSERT INTO CentroRicarica (Indirizzo, NumeroStazioniDisponibili) VALUES
 
 -- Inserimento di alcune stazioni di ricarica collegate ai centri
 INSERT INTO StazioneRicarica (TipologiaPresa, GPS, Stato, CentroRicaricaIndirizzo) VALUES
-('Type 2', ST_PointFromText('POINT(11.3426 44.4949)'), 'libera', 'Via Bologna 123, Bologna'),
-('CCS Combo', ST_PointFromText('POINT(11.3430 44.4955)'), 'libera', 'Via Bologna 123, Bologna'),
-('CHAdeMO', ST_PointFromText('POINT(9.1900 45.4642)'), 'libera', 'Piazza Duomo 45, Milano'),
-('Type 2', ST_PointFromText('POINT(9.1905 45.4648)'), 'occupata', 'Piazza Duomo 45, Milano'),
-('CCS Combo', ST_PointFromText('POINT(12.4964 41.9028)'), 'libera', 'Via del Corso 78, Roma');
+('Type2', ST_PointFromText('POINT(11.3426 44.4949)'), 'libera', 'Via Bologna 123, Bologna'),
+('CCS2', ST_PointFromText('POINT(11.3430 44.4955)'), 'libera', 'Via Bologna 123, Bologna'),
+('Schuko', ST_PointFromText('POINT(9.1900 45.4642)'), 'libera', 'Piazza Duomo 45, Milano'),
+('Type2', ST_PointFromText('POINT(9.1905 45.4648)'), 'occupata', 'Piazza Duomo 45, Milano'),
+('CCS2', ST_PointFromText('POINT(12.4964 41.9028)'), 'libera', 'Via del Corso 78, Roma');
 
 -- Inserimento di alcuni veicoli di esempio
 INSERT INTO Veicolo (Targa, Tipologia, Modello, Marca, PercentualeBatteria, GPS, Stato, ScadenzaRevisione, NumeroPolizzaAssicurativa, NumeroPosti, DataImmatricolazione, ChilometraggioTotale) VALUES

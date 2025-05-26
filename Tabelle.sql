@@ -25,6 +25,9 @@ DROP TABLE IF EXISTS Patente;
 DROP TABLE IF EXISTS Documento;
 DROP TABLE IF EXISTS Account;
 DROP TABLE IF EXISTS MetodoPagamento;
+DROP VIEW IF EXISTS Veicolo_Attivo;
+DROP VIEW IF EXISTS Account_Attivo;
+DROP VIEW IF EXISTS Cliente_Account_Info;
 
 -- Riabilita i controlli delle foreign key
 SET FOREIGN_KEY_CHECKS = 1;
@@ -35,15 +38,14 @@ SET FOREIGN_KEY_CHECKS = 1;
 
 CREATE TABLE MetodoPagamento (
     ID INT AUTO_INCREMENT PRIMARY KEY,
-    NumeroCarta VARCHAR(25) NOT NULL UNIQUE
+    NumeroCarta VARCHAR(25) NOT NULL UNIQUE,
     Intestatario VARCHAR(255) NOT NULL,
     CVV VARCHAR(4) NOT NULL, 
     Scadenza DATE NOT NULL,  -- Unico per intestatario e numero carta
     CONSTRAINT check_carta CHECK 
     (
         LENGTH(NumeroCarta) BETWEEN 13 AND 19 AND 
-        NumeroCarta REGEXP '^[0-9]+$' AND
-        Scadenza > CURRENT_DATE
+        NumeroCarta REGEXP '^[0-9]+$'
     )
 );
 
@@ -162,10 +164,10 @@ CREATE TABLE Veicolo (
 
 CREATE TABLE StazioneRicarica (
     ID INT AUTO_INCREMENT PRIMARY KEY,
-    TipologiaPresa VARCHAR(100) NOT NULL, 
+    TipologiaPresa ENUM('Type2', 'CCS2', 'Schuko') NOT NULL,
     GPS POINT NOT NULL, 
     Stato ENUM('libera', 'occupata', 'in_manutenzione', 'fuori_servizio', 'eliminata') NOT NULL DEFAULT 'libera',
-    CentroRicarica VARCHAR(255) NULL,
+    CentroRicarica INT NULL,
     FOREIGN KEY (CentroRicarica) REFERENCES CentroRicarica(ID) ON DELETE SET NULL ON UPDATE CASCADE
 );
 
@@ -248,11 +250,6 @@ SELECT *
 From Veicolo
 Where Stato <> 'eliminato';
 
-CREATE VIEW StazioneRicarica_Attivo AS
-SELECT *
-FROM StazioneRicarica
-WHERE Stato <> 'eliminata';
-
 CREATE VIEW Account_Attivo AS
 SELECT *
 FROM Account
@@ -266,7 +263,7 @@ SELECT
     a.Email,
     a.Telefono, 
     a.Stato,
-    a.ID,
+    a.ID
 FROM Cliente c
 JOIN Account a ON c.AccountID = a.ID;
 
