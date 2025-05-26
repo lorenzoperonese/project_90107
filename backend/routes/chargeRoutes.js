@@ -1,6 +1,6 @@
 const express = require('express');
 const router = express.Router();
-const ricaricheController = require('../controllers/ricaricheController');
+const ricaricheController = require('../controllers/chargeController');
 
 // Operazione 5.a - Inserimento: registrazione inizio di una nuova sessione di ricarica
 router.post('/start', ricaricheController.startRicarica);
@@ -9,9 +9,9 @@ router.post('/start', ricaricheController.startRicarica);
 router.put('/:id/end', ricaricheController.endRicarica);
 
 // Veicoli che hanno effettuato più ricariche nell'ultimo mese
-router.get('/veicoli-piu-ricaricati', ricaricheController.getVeicoliPiuRicaricati);
+router.get('/most-charged-vehicles', ricaricheController.getVeicoliPiuRicaricati);
 
 // Operatori che hanno effettuato più ricariche
-router.get('/operatori-piu-attivi', ricaricheController.getOperatoriPiuAttivi);
+router.get('/most-active-operators', ricaricheController.getOperatoriPiuAttivi);
 
 module.exports = router; 

@@ -1,6 +1,6 @@
 const express = require('express');
 const router = express.Router();
-const clientiController = require('../controllers/clientiController');
+const clientiController = require('../controllers/clientController');
 
 // Operazione 3.a - Inserimento: registrazione di un nuovo utente al servizio
 router.post('/register', clientiController.registerCliente);
@@ -12,12 +12,12 @@ router.put('/:id/license', clientiController.updateLicenseData);
 router.delete('/:id', clientiController.deleteCliente);
 
 // Op 3.b: Visualizzazione dei clienti con più di 50 noleggi nell'ultimo anno
-router.get('/frequenti', clientiController.getFrequentClients);
+router.get('/frequent', clientiController.getFrequentClients);
 
 // OP 3.c: Visualizzazione dei clienti con abbonamento attivo
-router.get('/abbonati', clientiController.getClientsWithSubscription);
+router.get('/subscribers', clientiController.getClientsWithSubscription);
 
 // Op 3.d: Visualizzazione dei clienti più fedeli
-router.get('/fedeli', clientiController.getLoyalClients);
+router.get('/loyal', clientiController.getLoyalClients);
 
 module.exports = router; 

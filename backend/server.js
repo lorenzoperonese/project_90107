@@ -5,13 +5,13 @@ const { testConnection } = require('./config/database');
 
 // Import all route files
 const vehicleRoutes = require('./routes/vehicleRoutes');
-const noleggiRoutes = require('./routes/noleggiRoutes');
-const clientiRoutes = require('./routes/clientiRoutes');
-const manutenzioniRoutes = require('./routes/manutenzioniRoutes');
-const ricaricheRoutes = require('./routes/ricaricheRoutes');
-const centriRicaricaRoutes = require('./routes/centriRicaricaRoutes');
-const stazioniRicaricaRoutes = require('./routes/stazioniRicaricaRoutes');
-const tariffeRoutes = require('./routes/tariffeRoutes');
+const rentalRoutes = require('./routes/rentalRoutes');
+const clientRoutes = require('./routes/clientRoutes');
+const maintenanceRoutes = require('./routes/maintenanceRoutes');
+const chargeRoutes = require('./routes/chargeRoutes');
+const chargingCenterRoutes = require('./routes/chargingCenterRoutes');
+const chargingStationRoutes = require('./routes/chargingStationRoutes');
+const fareRoutes = require('./routes/fareRoutes');
 
 const app = express();
 
@@ -21,14 +21,14 @@ app.use(express.json());
 app.use(express.urlencoded({ extended: true }));
 
 // API Routes
-app.use('/api/veicoli', vehicleRoutes);
-app.use('/api/noleggi', noleggiRoutes);
-app.use('/api/clienti', clientiRoutes);
-app.use('/api/manutenzioni', manutenzioniRoutes);
-app.use('/api/ricariche', ricaricheRoutes);
-app.use('/api/centri-ricarica', centriRicaricaRoutes);
-app.use('/api/stazioni-ricarica', stazioniRicaricaRoutes);
-app.use('/api/tariffe', tariffeRoutes);
+app.use('/api/vehicles', vehicleRoutes);
+app.use('/api/rentals', rentalRoutes);
+app.use('/api/clients', clientRoutes);
+app.use('/api/maintenances', maintenanceRoutes);
+app.use('/api/charges', chargeRoutes);
+app.use('/api/charging-centers', chargingCenterRoutes);
+app.use('/api/charging-stations', chargingStationRoutes);
+app.use('/api/fares', fareRoutes);
 
 // Route test
 app.get('/api', (req, res) => {

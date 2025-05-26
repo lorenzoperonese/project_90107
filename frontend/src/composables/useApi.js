@@ -1,6 +1,6 @@
 export function useApi() {
   const handleVeicoliAPI = async (operation, formData) => {
-    const baseUrl = '/api/veicoli'
+    const baseUrl = '/api/vehicles'
     
     switch (operation) {
       case 'create':
@@ -25,29 +25,22 @@ export function useApi() {
           headers: { 'Content-Type': 'application/json' }
         })
         
-      case 'read-targa':
-        if (!formData.Targa) throw new Error('Targa richiesta per la ricerca')
-        return fetch(`${baseUrl}/targa/${formData.Targa}`, {
-          method: 'GET',
-          headers: { 'Content-Type': 'application/json' }
-        })
-        
       case 'read-tipologia':
         if (!formData.Tipologia) throw new Error('Tipologia richiesta per la ricerca')
-        return fetch(`${baseUrl}/tipologia/${formData.Tipologia}`, {
+        return fetch(`${baseUrl}/type/${formData.Tipologia}`, {
           method: 'GET',
           headers: { 'Content-Type': 'application/json' }
         })
 
       case 'read-most-rented':
         if (!formData.Tipologia) throw new Error('Tipologia richiesta per la ricerca')
-        return fetch(`${baseUrl}/piu-noleggiati/${formData.Tipologia}`, {
+        return fetch(`${baseUrl}/most-rented/${formData.Tipologia}`, {
           method: 'GET',
           headers: { 'Content-Type': 'application/json' }
         })
 
       case 'read-most-maintenance':
-        return fetch(`${baseUrl}/piu-manutenzione`, {
+        return fetch(`${baseUrl}/most-maintenance`, {
           method: 'GET',
           headers: { 'Content-Type': 'application/json' }
         })
@@ -58,7 +51,7 @@ export function useApi() {
   }
 
   const handleNoleggiAPI = async (operation, formData) => {
-    const baseUrl = '/api/noleggi'
+    const baseUrl = '/api/rentals'
     
     switch (operation) {
       case 'create':
@@ -75,28 +68,21 @@ export function useApi() {
           headers: { 'Content-Type': 'application/json' },
           body: JSON.stringify(formData)
         })
-        
-      case 'read':
-        if (!formData.ClienteAccountID) throw new Error('ID Cliente richiesto per la ricerca')
-        return fetch(`${baseUrl}/cliente/${formData.ClienteAccountID}`, {
-          method: 'GET',
-          headers: { 'Content-Type': 'application/json' }
-        })
 
       case 'read-avg-duration':
-        return fetch(`${baseUrl}/durata-media`, {
+        return fetch(`${baseUrl}/average-duration`, {
           method: 'GET',
           headers: { 'Content-Type': 'application/json' }
         })
 
       case 'read-km-traveled':
-        return fetch(`${baseUrl}/veicoli-piu-km`, {
+        return fetch(`${baseUrl}/most-km-vehicles`, {
           method: 'GET',
           headers: { 'Content-Type': 'application/json' }
         })
 
       case 'read-monthly-trend':
-        return fetch(`${baseUrl}/andamento-mensile`, {
+        return fetch(`${baseUrl}/monthly-trend`, {
           method: 'GET',
           headers: { 'Content-Type': 'application/json' }
         })
@@ -107,20 +93,12 @@ export function useApi() {
   }
 
   const handleClientiAPI = async (operation, formData) => {
-    const baseUrl = '/api/clienti'
+    const baseUrl = '/api/clients'
     
     switch (operation) {
       case 'create':
         return fetch(`${baseUrl}/register`, {
           method: 'POST',
-          headers: { 'Content-Type': 'application/json' },
-          body: JSON.stringify(formData)
-        })
-        
-      case 'update-payment':
-        if (!formData.AccountID) throw new Error('ID Account richiesto per la modifica')
-        return fetch(`${baseUrl}/${formData.AccountID}/payment`, {
-          method: 'PUT',
           headers: { 'Content-Type': 'application/json' },
           body: JSON.stringify(formData)
         })
@@ -139,28 +117,21 @@ export function useApi() {
           method: 'DELETE',
           headers: { 'Content-Type': 'application/json' }
         })
-        
-      case 'read':
-        if (!formData.AccountID) throw new Error('ID Account richiesto per la ricerca')
-        return fetch(`${baseUrl}/${formData.AccountID}`, {
-          method: 'GET',
-          headers: { 'Content-Type': 'application/json' }
-        })
 
       case 'read-frequent':
-        return fetch(`${baseUrl}/frequenti`, {
+        return fetch(`${baseUrl}/frequent`, {
           method: 'GET',
           headers: { 'Content-Type': 'application/json' }
         })
 
       case 'read-with-subscription':
-        return fetch(`${baseUrl}/abbonati`, {
+        return fetch(`${baseUrl}/subscribers`, {
           method: 'GET',
           headers: { 'Content-Type': 'application/json' }
         })
 
       case 'read-loyal':
-        return fetch(`${baseUrl}/fedeli`, {
+        return fetch(`${baseUrl}/loyal`, {
           method: 'GET',
           headers: { 'Content-Type': 'application/json' }
         })
@@ -171,7 +142,7 @@ export function useApi() {
   }
 
   const handleManutenzioniAPI = async (operation, formData) => {
-    const baseUrl = '/api/manutenzioni'
+    const baseUrl = '/api/maintenances'
     
     switch (operation) {
       case 'create':
@@ -183,26 +154,19 @@ export function useApi() {
         
       case 'read-clienti-interventi':
         if (!formData.InterventoID) throw new Error('ID Intervento richiesto per la ricerca')
-        return fetch(`${baseUrl}/intervento/${formData.InterventoID}/clienti`, {
-          method: 'GET',
-          headers: { 'Content-Type': 'application/json' }
-        })
-        
-      case 'read-veicoli-officina':
-        if (!formData.OfficinaID) throw new Error('ID Officina richiesto per la ricerca')
-        return fetch(`${baseUrl}/officina/${formData.OfficinaID}/veicoli`, {
+        return fetch(`${baseUrl}/maintenance/${formData.InterventoID}/rentals`, {
           method: 'GET',
           headers: { 'Content-Type': 'application/json' }
         })
 
       case 'read-expensive-interventions':
-        return fetch(`${baseUrl}/costi-medi`, {
+        return fetch(`${baseUrl}/average-costs`, {
           method: 'GET',
           headers: { 'Content-Type': 'application/json' }
         })
 
       case 'read-monthly-costs':
-        return fetch(`${baseUrl}/andamento-mensile`, {
+        return fetch(`${baseUrl}/monthly-trend`, {
           method: 'GET',
           headers: { 'Content-Type': 'application/json' }
         })
@@ -230,29 +194,15 @@ export function useApi() {
           headers: { 'Content-Type': 'application/json' },
           body: JSON.stringify(formData)
         })
-        
-      case 'read-vehicle':
-        if (!formData.VeicoloID) throw new Error('ID Veicolo richiesto per la ricerca')
-        return fetch(`${baseUrl}/veicolo/${formData.VeicoloID}`, {
-          method: 'GET',
-          headers: { 'Content-Type': 'application/json' }
-        })
-        
-      case 'read-operator':
-        if (!formData.OperatoreAccountID) throw new Error('ID Operatore richiesto per la ricerca')
-        return fetch(`${baseUrl}/operatore/${formData.OperatoreAccountID}`, {
-          method: 'GET',
-          headers: { 'Content-Type': 'application/json' }
-        })
 
       case 'read-most-recharged-vehicles':
-        return fetch(`${baseUrl}/veicoli-piu-ricaricati`, {
+        return fetch(`${baseUrl}/most-charged-vehicles`, {
           method: 'GET',
           headers: { 'Content-Type': 'application/json' }
         })
 
       case 'read-most-active-operators':
-        return fetch(`${baseUrl}/operatori-piu-attivi`, {
+        return fetch(`${baseUrl}/most-active-operators`, {
           method: 'GET',
           headers: { 'Content-Type': 'application/json' }
         })
@@ -272,35 +222,15 @@ export function useApi() {
           headers: { 'Content-Type': 'application/json' },
           body: JSON.stringify(formData)
         })
-        
-      case 'delete':
-        if (!formData.ID) throw new Error('ID Centro richiesto per la cancellazione')
-        return fetch(`${baseUrl}/${formData.ID}`, {
-          method: 'DELETE',
-          headers: { 'Content-Type': 'application/json' }
-        })
-        
-      case 'read-centro':
-        return fetch(`${baseUrl}`, {
-          method: 'GET',
-          headers: { 'Content-Type': 'application/json' }
-        })
-        
-      case 'read-veicoli-caricati':
-        if (!formData.ID) throw new Error('ID Centro richiesto per la ricerca')
-        return fetch(`${baseUrl}/${formData.ID}/veicoli`, {
-          method: 'GET',
-          headers: { 'Content-Type': 'application/json' }
-        })
 
       case 'read-total-energy':
-        return fetch(`${baseUrl}/energia-totale`, {
+        return fetch(`${baseUrl}/total-energy`, {
           method: 'GET',
           headers: { 'Content-Type': 'application/json' }
         })
 
       case 'read-most-active-centers':
-        return fetch(`${baseUrl}/piu-attivi`, {
+        return fetch(`${baseUrl}/most-active`, {
           method: 'GET',
           headers: { 'Content-Type': 'application/json' }
         })
@@ -324,33 +254,20 @@ export function useApi() {
         
       case 'update':
         if (!formData.ID) throw new Error('ID Stazione richiesto per la modifica')
-        return fetch(`${baseUrl}/${formData.ID}/stato`, {
+        return fetch(`${baseUrl}/${formData.ID}/state`, {
           method: 'PUT',
           headers: { 'Content-Type': 'application/json' },
           body: JSON.stringify(formData)
         })
-        
-      case 'delete':
-        if (!formData.ID) throw new Error('ID Stazione richiesto per la cancellazione')
-        return fetch(`${baseUrl}/${formData.ID}`, {
-          method: 'DELETE',
-          headers: { 'Content-Type': 'application/json' }
-        })
-        
-      case 'read':
-        return fetch(`${baseUrl}`, {
-          method: 'GET',
-          headers: { 'Content-Type': 'application/json' }
-        })
 
       case 'read-total-energy':
-        return fetch(`${baseUrl}/energia-totale`, {
+        return fetch(`${baseUrl}/total-energy`, {
           method: 'GET',
           headers: { 'Content-Type': 'application/json' }
         })
 
       case 'read-avg-session-duration':
-        return fetch(`${baseUrl}/durata-media`, {
+        return fetch(`${baseUrl}/average-duration`, {
           method: 'GET',
           headers: { 'Content-Type': 'application/json' }
         })
