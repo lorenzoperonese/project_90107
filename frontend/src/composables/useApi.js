@@ -38,6 +38,19 @@ export function useApi() {
           method: 'GET',
           headers: { 'Content-Type': 'application/json' }
         })
+
+      case 'read-most-rented':
+        if (!formData.Tipologia) throw new Error('Tipologia richiesta per la ricerca')
+        return fetch(`${baseUrl}/piu-noleggiati/${formData.Tipologia}`, {
+          method: 'GET',
+          headers: { 'Content-Type': 'application/json' }
+        })
+
+      case 'read-most-maintenance':
+        return fetch(`${baseUrl}/piu-manutenzione`, {
+          method: 'GET',
+          headers: { 'Content-Type': 'application/json' }
+        })
         
       default:
         throw new Error('Operazione non supportata')
@@ -66,6 +79,24 @@ export function useApi() {
       case 'read':
         if (!formData.ClienteAccountID) throw new Error('ID Cliente richiesto per la ricerca')
         return fetch(`${baseUrl}/cliente/${formData.ClienteAccountID}`, {
+          method: 'GET',
+          headers: { 'Content-Type': 'application/json' }
+        })
+
+      case 'read-avg-duration':
+        return fetch(`${baseUrl}/durata-media`, {
+          method: 'GET',
+          headers: { 'Content-Type': 'application/json' }
+        })
+
+      case 'read-km-traveled':
+        return fetch(`${baseUrl}/veicoli-piu-km`, {
+          method: 'GET',
+          headers: { 'Content-Type': 'application/json' }
+        })
+
+      case 'read-monthly-trend':
+        return fetch(`${baseUrl}/andamento-mensile`, {
           method: 'GET',
           headers: { 'Content-Type': 'application/json' }
         })
@@ -110,8 +141,26 @@ export function useApi() {
         })
         
       case 'read':
-        if (!formData.ClienteAccountID) throw new Error('ID Account richiesto per la ricerca')
-        return fetch(`${baseUrl}/${formData.ClienteAccountID}`, {
+        if (!formData.AccountID) throw new Error('ID Account richiesto per la ricerca')
+        return fetch(`${baseUrl}/${formData.AccountID}`, {
+          method: 'GET',
+          headers: { 'Content-Type': 'application/json' }
+        })
+
+      case 'read-frequent':
+        return fetch(`${baseUrl}/frequenti`, {
+          method: 'GET',
+          headers: { 'Content-Type': 'application/json' }
+        })
+
+      case 'read-with-subscription':
+        return fetch(`${baseUrl}/abbonati`, {
+          method: 'GET',
+          headers: { 'Content-Type': 'application/json' }
+        })
+
+      case 'read-loyal':
+        return fetch(`${baseUrl}/fedeli`, {
           method: 'GET',
           headers: { 'Content-Type': 'application/json' }
         })
@@ -133,8 +182,8 @@ export function useApi() {
         })
         
       case 'read-clienti-interventi':
-        if (!formData.VeicoloID) throw new Error('ID Veicolo richiesto per la ricerca')
-        return fetch(`${baseUrl}/veicolo/${formData.VeicoloID}/clienti`, {
+        if (!formData.InterventoID) throw new Error('ID Intervento richiesto per la ricerca')
+        return fetch(`${baseUrl}/intervento/${formData.InterventoID}/clienti`, {
           method: 'GET',
           headers: { 'Content-Type': 'application/json' }
         })
@@ -142,6 +191,18 @@ export function useApi() {
       case 'read-veicoli-officina':
         if (!formData.OfficinaID) throw new Error('ID Officina richiesto per la ricerca')
         return fetch(`${baseUrl}/officina/${formData.OfficinaID}/veicoli`, {
+          method: 'GET',
+          headers: { 'Content-Type': 'application/json' }
+        })
+
+      case 'read-expensive-interventions':
+        return fetch(`${baseUrl}/costi-medi`, {
+          method: 'GET',
+          headers: { 'Content-Type': 'application/json' }
+        })
+
+      case 'read-monthly-costs':
+        return fetch(`${baseUrl}/andamento-mensile`, {
           method: 'GET',
           headers: { 'Content-Type': 'application/json' }
         })
@@ -183,6 +244,18 @@ export function useApi() {
           method: 'GET',
           headers: { 'Content-Type': 'application/json' }
         })
+
+      case 'read-most-recharged-vehicles':
+        return fetch(`${baseUrl}/veicoli-piu-ricaricati`, {
+          method: 'GET',
+          headers: { 'Content-Type': 'application/json' }
+        })
+
+      case 'read-most-active-operators':
+        return fetch(`${baseUrl}/operatori-piu-attivi`, {
+          method: 'GET',
+          headers: { 'Content-Type': 'application/json' }
+        })
         
       default:
         throw new Error('Operazione non supportata')
@@ -201,8 +274,8 @@ export function useApi() {
         })
         
       case 'delete':
-        if (!formData.Indirizzo) throw new Error('Indirizzo richiesto per la cancellazione')
-        return fetch(`${baseUrl}/${encodeURIComponent(formData.Indirizzo)}`, {
+        if (!formData.ID) throw new Error('ID Centro richiesto per la cancellazione')
+        return fetch(`${baseUrl}/${formData.ID}`, {
           method: 'DELETE',
           headers: { 'Content-Type': 'application/json' }
         })
@@ -214,8 +287,21 @@ export function useApi() {
         })
         
       case 'read-veicoli-caricati':
-        if (!formData.Indirizzo) throw new Error('Indirizzo centro richiesto per la ricerca')
-        return fetch(`${baseUrl}/${encodeURIComponent(formData.Indirizzo)}/veicoli`, {
+        if (!formData.ID) throw new Error('ID Centro richiesto per la ricerca')
+        return fetch(`${baseUrl}/${formData.ID}/veicoli`, {
+          method: 'GET',
+          headers: { 'Content-Type': 'application/json' }
+        })
+
+      case 'read-total-energy':
+        if (!formData.ID) throw new Error('ID Centro richiesto per la ricerca')
+        return fetch(`${baseUrl}/${formData.ID}/energia-totale`, {
+          method: 'GET',
+          headers: { 'Content-Type': 'application/json' }
+        })
+
+      case 'read-most-active-centers':
+        return fetch(`${baseUrl}/piu-attivi`, {
           method: 'GET',
           headers: { 'Content-Type': 'application/json' }
         })
@@ -253,8 +339,21 @@ export function useApi() {
         })
         
       case 'read':
-        if (!formData.Zona) throw new Error('Zona richiesta per la ricerca')
-        return fetch(`${baseUrl}/zona/${formData.Zona}`, {
+        return fetch(`${baseUrl}`, {
+          method: 'GET',
+          headers: { 'Content-Type': 'application/json' }
+        })
+
+      case 'read-total-energy':
+        if (!formData.ID) throw new Error('ID Stazione richiesto per la ricerca')
+        return fetch(`${baseUrl}/${formData.ID}/energia-totale`, {
+          method: 'GET',
+          headers: { 'Content-Type': 'application/json' }
+        })
+
+      case 'read-avg-session-duration':
+        if (!formData.ID) throw new Error('ID Stazione richiesto per la ricerca')
+        return fetch(`${baseUrl}/${formData.ID}/durata-media`, {
           method: 'GET',
           headers: { 'Content-Type': 'application/json' }
         })

@@ -8,7 +8,10 @@ router.post('/', manutenzioniController.insertIntervento);
 // Operazione: visualizzazione degli ultimi 5 clienti che hanno noleggiato veicoli con interventi
 router.get('/veicolo/:veicoloId/clienti', manutenzioniController.getLastClientsWithInterventions);
 
-// Operazione: visualizzazione veicoli che hanno effettuato manutenzioni/revisioni presso una specifica officina
-router.get('/officina/:officinaId/veicoli', manutenzioniController.getVehiclesByWorkshop);
+// Operazione 4.b - Visualizzazione tipologie di intervento più costose in media
+router.get('/costi-medi', manutenzioniController.getCostiMedi);
+
+// Operazione 4.c - Andamento mensile dei costi di manutenzione
+router.get('/andamento-mensile', manutenzioniController.getAndamentoMensile);
 
 module.exports = router;

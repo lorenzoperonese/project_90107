@@ -8,9 +8,10 @@
         class="flex-1 overflow-y-auto p-6 pb-0 modal-scroll"
       >
         <div class="space-y-4">
-          <!-- READ Operation -->
-          <div v-if="isReadOperation" class="space-y-4">
-            <div class="grid grid-cols-1 md:grid-cols-2 gap-4">
+          <!-- READ Operation Form -->
+          <div v-if="isReadOperation" class="space-y-6">
+            <!-- Form fields section -->
+            <div v-if="!searchResults" class="grid grid-cols-1 md:grid-cols-2 gap-4">
               <FormField
                 v-for="(field, index) in fields"
                 :key="index"
@@ -19,6 +20,79 @@
                 @update="updateField"
                 class-prefix="border-blue-200 focus:border-blue-500"
               />
+            </div>
+
+            <!-- Search results section -->
+            <div v-else class="space-y-6">
+              <div class="bg-blue-50 border border-blue-200 rounded-xl p-6">
+                <div class="flex items-center mb-4">
+                  <div class="bg-blue-100 p-2 rounded-full mr-3">
+                    <svg xmlns="http://www.w3.org/2000/svg" class="h-6 w-6 text-blue-600" fill="none" viewBox="0 0 24 24" stroke="currentColor">
+                      <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M9 5H7a2 2 0 00-2 2v12a2 2 0 002 2h10a2 2 0 002-2V7a2 2 0 00-2-2h-2M9 5a2 2 0 002 2h2a2 2 0 002-2M9 5a2 2 0 012-2h2a2 2 0 012 2" />
+                    </svg>
+                  </div>
+                  <h3 class="text-xl font-bold text-blue-800">Risultati della ricerca</h3>
+                </div>
+
+                <!-- No results message -->
+                <div v-if="Array.isArray(searchResults) && searchResults.length === 0" 
+                     class="text-center py-8 bg-blue-50 border border-blue-100 rounded-lg">
+                  <svg xmlns="http://www.w3.org/2000/svg" class="h-12 w-12 mx-auto text-blue-400 mb-3" fill="none" viewBox="0 0 24 24" stroke="currentColor">
+                    <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M9.172 16.172a4 4 0 015.656 0M9 10h.01M15 10h.01M12 12.5a2.5 2.5 0 100-5 2.5 2.5 0 000 5z" />
+                  </svg>
+                  <p class="text-lg font-medium text-gray-700">Nessun risultato trovato</p>
+                  <p class="text-gray-500 mt-1">Prova a modificare i parametri di ricerca</p>
+                </div>
+
+                <!-- Array of results -->
+                <div v-else-if="Array.isArray(searchResults)" class="overflow-x-auto">
+                  <table class="min-w-full bg-white border border-blue-200 rounded-lg overflow-hidden">
+                    <thead class="bg-blue-100">
+                      <tr>
+                        <th v-for="(_, key) in searchResults[0]" :key="key" class="px-4 py-3 text-left text-sm font-semibold text-blue-900 uppercase tracking-wider border-b border-blue-200">
+                          {{ formatColumnName(key) }}
+                        </th>
+                      </tr>
+                    </thead>
+                    <tbody>
+                      <tr v-for="(item, index) in searchResults" :key="index" :class="index % 2 === 0 ? 'bg-white' : 'bg-blue-50'">
+                        <td v-for="(value, key) in item" :key="`${index}-${key}`" class="px-4 py-3 text-sm text-gray-700 border-b border-blue-100">
+                          {{ formatValue(value) }}
+                        </td>
+                      </tr>
+                    </tbody>
+                  </table>
+                </div>
+
+                <!-- Single object result -->
+                <div v-else-if="typeof searchResults === 'object'" class="bg-white rounded-lg border border-blue-200 overflow-hidden">
+                  <div class="grid grid-cols-1 divide-y divide-blue-100">
+                    <div v-for="(value, key) in searchResults" :key="key" class="flex p-4">
+                      <div class="w-1/3 font-medium text-blue-800">{{ formatColumnName(key) }}</div>
+                      <div class="w-2/3 text-gray-700">{{ formatValue(value) }}</div>
+                    </div>
+                  </div>
+                </div>
+
+                <!-- Other types of results (scalar values) -->
+                <div v-else class="bg-white p-4 rounded-lg border border-blue-200">
+                  <pre class="text-gray-700 whitespace-pre-wrap">{{ formatValue(searchResults) }}</pre>
+                </div>
+              </div>
+
+              <!-- New search button -->
+              <div class="flex justify-center">
+                <button 
+                  type="button" 
+                  @click="resetSearch" 
+                  class="px-4 py-2 bg-blue-100 hover:bg-blue-200 text-blue-700 rounded-lg transition-colors flex items-center"
+                >
+                  <svg xmlns="http://www.w3.org/2000/svg" class="h-4 w-4 mr-2" fill="none" viewBox="0 0 24 24" stroke="currentColor">
+                    <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M21 21l-6-6m2-5a7 7 0 11-14 0 7 7 0 0114 0z" />
+                  </svg>
+                  Nuova ricerca
+                </button>
+              </div>
             </div>
           </div>
 
@@ -88,7 +162,7 @@
         ]"
       >
         <div class="flex gap-4">
-          <button type="submit" :class="submitButtonClass">
+          <button v-if="!searchResults || !isReadOperation" type="submit" :class="submitButtonClass">
             {{ buttonText }}
           </button>
           <button type="button" @click="$emit('cancel')" class="px-6 py-3 rounded-xl font-semibold bg-gray-500 hover:bg-gray-600 text-white transition-colors">
@@ -108,7 +182,8 @@ import { useOperations } from '../composables/useOperations.js'
 const props = defineProps({
   section: Object,
   operation: String,
-  formData: Object
+  formData: Object,
+  searchResults: Object
 })
 
 const emit = defineEmits(['form-submit', 'cancel', 'update-field'])
@@ -216,4 +291,29 @@ const fieldsWithState = computed(() => {
     }
   })
 })
+
+// Utility per formattare i nomi delle colonne
+const formatColumnName = (key) => {
+  // Prima lettera maiuscola e sostituisce underscore con spazi
+  if (!key) return ''
+  const formatted = key.charAt(0).toUpperCase() + key.slice(1).replace(/_/g, ' ')
+  return formatted
+}
+
+// Utility per formattare i valori
+const formatValue = (value) => {
+  if (value === null || value === undefined) return '-'
+  if (typeof value === 'boolean') return value ? 'Sì' : 'No'
+  if (value instanceof Date) return value.toLocaleString('it-IT')
+  return value.toString()
+}
+
+// Reset della ricerca
+const resetSearch = () => {
+  emit('update-field', '__reset_search', true)
+  // Svuota tutti i campi del form
+  fields.value.forEach(field => {
+    emit('update-field', field.name, null)
+  })
+}
 </script> 

@@ -7,7 +7,7 @@ BEGIN
         SIGNAL SQLSTATE '45000' 
         SET MESSAGE_TEXT = 'Età minima 18 anni';
     END IF;
-END
+END;
 
 
 -- vincolo 2
@@ -38,7 +38,7 @@ BEGIN
             END IF;
         END IF;
     END IF;
-END
+END;
 
 -- vincolo 3
 CREATE TRIGGER check_stato_account_noleggio
@@ -54,7 +54,7 @@ BEGIN
     IF stato <> 'attivo' THEN
         SIGNAL SQLSTATE '45000' SET MESSAGE_TEXT = 'Il cliente non è attivo e non può noleggiare';
     END IF;
-END
+END;
 
 -- vincolo 4
 CREATE TRIGGER check_metodo_pagamento_noleggio
@@ -68,7 +68,7 @@ BEGIN
     IF metodo IS NULL THEN
         SIGNAL SQLSTATE '45000' SET MESSAGE_TEXT = 'Metodo di pagamento mancante';
     END IF;
-END
+END;
 
 -- vincolo 5
 CREATE TRIGGER check_documenti_validi_noleggio
@@ -82,7 +82,7 @@ BEGIN
     IF docScad <= CURDATE() THEN
         SIGNAL SQLSTATE '45000' SET MESSAGE_TEXT = 'Documento scaduto';
     END IF;
-END
+END;
 
 -- vincolo 8
 CREATE TRIGGER check_veicolo_disponibile_noleggio
@@ -98,7 +98,7 @@ BEGIN
     IF batteria <= 20 THEN
         SIGNAL SQLSTATE '45000' SET MESSAGE_TEXT = 'Batteria insufficiente per il noleggio';
     END IF;
-END
+END;
 
 -- vincolo 9
 CREATE TRIGGER check_date_noleggio
@@ -108,7 +108,7 @@ BEGIN
     IF OLD.DataInizio >= NEW.DataFine THEN
         SIGNAL SQLSTATE '45000' SET MESSAGE_TEXT = 'La data di fine deve essere successiva a quella di inizio';
     END IF;
-END
+END;
 
 -- vincolo 12
 
@@ -127,7 +127,7 @@ BEGIN
     IF count > 0 THEN
         SIGNAL SQLSTATE '45000' SET MESSAGE_TEXT = 'Il veicolo è già noleggiato';
     END IF;
-END
+END;
 
 -- vincolo 15
 CREATE TRIGGER check_unico_abbonamento_attivo
@@ -141,4 +141,4 @@ BEGIN
     IF count > 0 THEN
         SIGNAL SQLSTATE '45000' SET MESSAGE_TEXT = 'Esiste già un abbonamento attivo per questo cliente';
     END IF;
-END
+END;

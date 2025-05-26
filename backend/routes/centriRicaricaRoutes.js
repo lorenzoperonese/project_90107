@@ -5,13 +5,10 @@ const centriRicaricaController = require('../controllers/centriRicaricaControlle
 // Operazione 6.a - Inserimento: aggiunta di un nuovo centro di ricarica
 router.post('/', centriRicaricaController.insertCentroRicarica);
 
-// Operazione 6.b - Cancellazione: rimozione di un centro di ricarica
-router.delete('/:indirizzo', centriRicaricaController.deleteCentroRicarica);
+// Op 6.c: Visualizzazione dei 5 centri di ricarica con più ricariche effettuate nell'ultimo anno
+router.get('/piu-attivi', centriRicaricaController.getCentriPiuAttivi);
 
-// Operazione 6.c - Ricerca1: visualizzazione centro per zona geografica
-router.get('/', centriRicaricaController.getCentri);
-
-// Operazione 6.d - Ricerca2: visualizzazione veicoli caricati in un centro di ricarica
-router.get('/:indirizzo/veicoli', centriRicaricaController.getVehiclesByChargingCenter);
+// Op 6.b: Visualizzazione energia totale ricaricata per centro di ricarica
+router.get('/:id/energia-totale', centriRicaricaController.getEnergiaTotale);
 
 module.exports = router; 

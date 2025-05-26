@@ -25,6 +25,7 @@
         :operations="availableOperations"
         :selected-operation="selectedOperation"
         :form-data="formData"
+        :search-results="searchResults"
         @close="closeForm"
         @operation-selected="selectOperation"
         @form-submit="submitForm"
@@ -49,17 +50,21 @@ import { useApi } from './composables/useApi.js'
 // Composables
 const operations = useOperations()
 const api = useApi()
+const { operationDefinitions } = useOperations()
 
 // State
 const activeSection = ref(null)
 const selectedOperation = ref(null)
 const formData = reactive({})
+const searchResults = ref(null)
 const showSuccess = ref(false)
 
 // Computed
 const availableOperations = computed(() => {
   if (activeSection.value === null) return []
-  return operations.getAvailableOperations(sections[activeSection.value])
+  
+  const sectionOperations = sections[activeSection.value]?.operations || []
+  return sectionOperations.map(opId => operationDefinitions[opId]).filter(op => op !== undefined)
 })
 
 // Methods
@@ -67,17 +72,20 @@ const activateSection = (index) => {
   activeSection.value = index
   selectedOperation.value = null
   clearFormData()
+  searchResults.value = null
 }
 
 const selectOperation = (operationId) => {
   selectedOperation.value = operationId
   clearFormData()
+  searchResults.value = null
 }
 
 const closeForm = () => {
   activeSection.value = null
   selectedOperation.value = null
   clearFormData()
+  searchResults.value = null
 }
 
 const clearFormData = () => {
@@ -85,6 +93,11 @@ const clearFormData = () => {
 }
 
 const updateField = (fieldName, value) => {
+  if (fieldName === '__reset_search') {
+    // Speciale: Reset dei risultati di ricerca
+    searchResults.value = null
+    return
+  }
   formData[fieldName] = value
 }
 
@@ -92,9 +105,15 @@ const submitForm = async () => {
   const result = await api.submitForm(activeSection.value, selectedOperation.value, formData)
   
   if (result.success) {
-    showSuccess.value = true
-    setTimeout(() => showSuccess.value = false, 3000)
-    closeForm()
+    // Se è un'operazione di ricerca/lettura, salva i risultati
+    if (selectedOperation.value?.startsWith('read')) {
+      searchResults.value = result.data
+    } else {
+      // Per altre operazioni, mostra il messaggio di successo e chiudi il form
+      showSuccess.value = true
+      setTimeout(() => showSuccess.value = false, 3000)
+      closeForm()
+    }
   } else {
     alert(result.error)
   }

@@ -8,7 +8,13 @@ router.post('/start', noleggiController.startNoleggio);
 // Operazione 2.b - Modifica: aggiornamento dati alla conclusione del noleggio
 router.put('/:id/end', noleggiController.endNoleggio);
 
-// Operazione 2.c - Ricerca: visualizzare lo storico dei noleggi per utente
-router.get('/cliente/:clienteId', noleggiController.getNoleggiByUser);
+// Operazione 2.d - Visualizzazione della durata media dei noleggi per ogni tipologia
+router.get('/durata-media', noleggiController.getDurataMediaPerTipologia);
+
+// Operazione 2.e - Visualizzazione dei veicoli con più chilometri percorsi
+router.get('/veicoli-piu-km', noleggiController.getVeicoliConPiuKm);
+
+// Operazione 2.f - Visualizzazione andamento mensile dei noleggi
+router.get('/andamento-mensile', noleggiController.getAndamentoMensile);
 
 module.exports = router; 

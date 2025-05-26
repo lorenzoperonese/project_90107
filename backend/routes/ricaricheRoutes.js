@@ -8,10 +8,10 @@ router.post('/start', ricaricheController.startRicarica);
 // Operazione 5.b - Modifica: aggiornamento dati al termine della sessione
 router.put('/:id/end', ricaricheController.endRicarica);
 
-// Operazione 5.c - Ricerca1: visualizzazione storico delle ricariche per veicolo
-router.get('/veicolo/:veicoloId', ricaricheController.getRicaricheByVehicle);
+// Veicoli che hanno effettuato più ricariche nell'ultimo mese
+router.get('/veicoli-piu-ricaricati', ricaricheController.getVeicoliPiuRicaricati);
 
-// Operazione 5.d - Ricerca2: visualizzazione storico ricariche effettuate da un addetto
-router.get('/operatore/:operatoreId', ricaricheController.getRicaricheByOperatore);
+// Operatori che hanno effettuato più ricariche
+router.get('/operatori-piu-attivi', ricaricheController.getOperatoriPiuAttivi);
 
 module.exports = router; 

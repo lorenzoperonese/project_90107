@@ -178,43 +178,7 @@ const vehicleController = {
     }
   },
 
-  // Operazione 1.d - Ricerca1: visualizzazione dei dettagli di un Veicolo_Attivo per targa
-  getVehicleByTarga: async (req, res) => {
-    try {
-      const { targa } = req.params;
-      console.log('Targa ricevuta:', targa);
-      
-      const query = `
-        SELECT *
-        FROM Veicolo_Attivo 
-        WHERE Targa = ?
-      `;
-      
-      const [vehicles] = await pool.execute(query, [targa]);
-      
-      if (vehicles.length === 0) {
-        return res.status(404).json({
-          success: false,
-          message: 'Veicolo non trovato'
-        });
-      }
-      
-      return res.status(200).json({
-        success: true,
-        message: 'Dettagli veicolo recuperati con successo',
-        data: vehicles[0]
-      });
-    } catch (error) {
-      console.error('Errore durante il recupero del veicolo:', error);
-      return res.status(500).json({ 
-        success: false, 
-        message: 'Errore durante il recupero del veicolo', 
-        error: error.message 
-      });
-    }
-  },
-
-  // Operazione 1.e - Ricerca2: visualizzazione veicoli per tipologia con batteria > 20%
+  // Operazione 1.d - Ricerca2: visualizzazione veicoli per tipologia con batteria > 20%
   getVehiclesByTypeAndBattery: async (req, res) => {
     try {
       const { tipologia } = req.params;
@@ -240,6 +204,93 @@ const vehicleController = {
       return res.status(500).json({ 
         success: false, 
         message: 'Errore durante il recupero dei veicoli', 
+        error: error.message 
+      });
+    }
+  },
+
+  // Operazione 1.e - Visualizzazione dei 5 veicoli più noleggiati nell'ultimo anno per tipologia
+  getMostRentedVehiclesByType: async (req, res) => {
+    try {
+      const { tipologia } = req.params;
+      console.log('Tipologia ricevuta per veicoli più noleggiati:', tipologia);
+      
+      const query = `
+        SELECT 
+            v.ID,
+            v.Targa,
+            v.Modello,
+            v.Marca,
+            v.Tipologia,
+            COUNT(n.ID) AS NumeroNoleggi
+        FROM 
+            Veicolo v
+        JOIN 
+            Noleggia n ON v.ID = n.VeicoloID
+        WHERE 
+            v.Tipologia = ?
+            AND n.DataInizio >= DATE_SUB(CURDATE(), INTERVAL 1 YEAR)
+        GROUP BY 
+            v.ID, v.Targa, v.Modello, v.Marca, v.Tipologia
+        ORDER BY 
+            NumeroNoleggi DESC
+        LIMIT 5;
+      `;
+      
+      const [vehicles] = await pool.execute(query, [tipologia]);
+      
+      return res.status(200).json({
+        success: true,
+        message: 'Veicoli più noleggiati recuperati con successo',
+        count: vehicles.length,
+        data: vehicles
+      });
+    } catch (error) {
+      console.error('Errore durante il recupero dei veicoli più noleggiati:', error);
+      return res.status(500).json({ 
+        success: false, 
+        message: 'Errore durante il recupero dei veicoli più noleggiati', 
+        error: error.message 
+      });
+    }
+  },
+
+  // Operazione 1.f - Visualizzazione dei 5 veicoli che hanno ricevuto più interventi di manutenzione nell'ultimo anno
+  getMostMaintenanceVehicles: async (req, res) => {
+    try {
+      const query = `
+        SELECT 
+            v.ID,
+            v.Targa,
+            v.Modello,
+            v.Marca,
+            COUNT(m.ID) AS NumeroInterventi
+        FROM
+            Veicolo v
+        JOIN
+            InterventoManutenzione m ON v.ID = m.VeicoloID
+        WHERE
+            m.DataIntervento >= DATE_SUB(CURDATE(), INTERVAL 1 YEAR)
+        GROUP BY
+            v.ID, v.Targa, v.Modello, v.Marca
+        ORDER BY
+            NumeroInterventi DESC
+        LIMIT 5;
+      `;
+      
+      const [vehicles] = await pool.execute(query);
+      
+      return res.status(200).json({
+        success: true,
+        message: 'Veicoli con più interventi recuperati con successo',
+        count: vehicles.length,
+        data: vehicles
+      });
+    } catch (error) {
+      console.error('Errore durante il recupero dei veicoli con più interventi:', error);
+      return res.status(500).json({ 
+        success: false, 
+        message: 'Errore durante il recupero dei veicoli con più interventi', 
         error: error.message 
       });
     }

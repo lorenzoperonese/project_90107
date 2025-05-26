@@ -9,7 +9,7 @@ const stazioniRicaricaController = {
         TipologiaPresa,
         GPS,
         Stato,
-        CentroRicaricaIndirizzo
+        CentroRicaricaID
       } = req.body;
 
       // Parsing GPS
@@ -17,11 +17,11 @@ const stazioniRicaricaController = {
 
       let query = `
         INSERT INTO StazioneRicarica (
-          TipologiaPresa, GPS, Stato, CentroRicaricaIndirizzo
+          TipologiaPresa, GPS, Stato, CentroRicarica
         ) VALUES (?, ST_PointFromText(?), ?, ?)
       `;
 
-      if (!CentroRicaricaIndirizzo) {
+      if (!CentroRicaricaID) {
         query = `
           INSERT INTO StazioneRicarica (
             TipologiaPresa, GPS, Stato
@@ -34,8 +34,8 @@ const stazioniRicaricaController = {
         gpsFormatted,
         Stato || 'libera'
       ];
-      if (CentroRicaricaIndirizzo) {
-        values.push(CentroRicaricaIndirizzo);
+      if (CentroRicaricaID) {
+        values.push(CentroRicaricaID);
       }
 
       const [result] = await pool.execute(query, values);
@@ -47,7 +47,7 @@ const stazioniRicaricaController = {
           id: result.insertId,
           TipologiaPresa,
           Stato: Stato || 'libera',
-          CentroRicaricaIndirizzo
+          CentroRicaricaID
         }
       });
     } catch (error) {
@@ -91,65 +91,81 @@ const stazioniRicaricaController = {
     }
   },
 
-  // Operazione 7.c - Cancellazione: rimozione di una stazione
-  deleteStazioneRicarica: async (req, res) => {
+  // Op 7.c - Visualizzazione delle stazioni ordinate per energia totale erogata
+  getEnergiaTotale: async (req, res) => {
     try {
       const { id } = req.params;
 
-      const query = 'UPDATE StazioneRicarica_Attivo SET Stato = "eliminata" WHERE ID = ?';
+      const query = `
+        SELECT 
+          sr.ID,
+          sr.TipologiaPresa,
+          SUM(r.KWhCaricati) AS EnergiaTotaleKWh
+        FROM StazioneRicarica sr
+        JOIN Ricarica r ON sr.ID = r.StazioneRicaricaID
+        WHERE sr.ID = ?
+        GROUP BY sr.ID, sr.TipologiaPresa
+      `;
+      
       const [result] = await pool.execute(query, [id]);
-
-      if (result.affectedRows === 0) {
+      
+      if (result.length === 0) {
         return res.status(404).json({
           success: false,
-          message: 'Stazione di ricarica non trovata'
+          message: 'Stazione di ricarica non trovata o nessuna ricarica effettuata'
         });
       }
-
+      
       return res.status(200).json({
         success: true,
-        message: 'Stazione di ricarica rimossa con successo',
-        data: { id }
+        message: 'Energia totale erogata recuperata con successo',
+        data: result[0]
       });
     } catch (error) {
-      console.error('Errore durante la rimozione della stazione di ricarica:', error);
+      console.error('Errore durante il recupero dell\'energia totale erogata:', error);
       return res.status(500).json({
         success: false,
-        message: 'Errore durante la rimozione della stazione di ricarica',
+        message: 'Errore durante il recupero dell\'energia totale erogata',
         error: error.message
       });
     }
   },
 
-  // Operazione 7.d - Ricerca: visualizzazione colonnine per zona geografica
-  getStazioniByZona: async (req, res) => {
+  // Op 7.d - Visualizzazione della durata media delle sessioni di ricarica per stazione
+  getDurataMediaSessioni: async (req, res) => {
     try {
-      const { zona } = req.params;
+      const { id } = req.params;
 
       const query = `
         SELECT 
-          s.ID, s.TipologiaPresa, s.Stato, s.CentroRicaricaIndirizzo,
-          ST_X(s.GPS) as Latitudine, ST_Y(s.GPS) as Longitudine,
-          c.NumeroStazioniDisponibili as CentroStazioni
-        FROM StazioneRicarica_Attivo s
-        LEFT JOIN CentroRicarica c ON s.CentroRicaricaIndirizzo = c.Indirizzo
-        WHERE s.CentroRicaricaIndirizzo LIKE ?
-        ORDER BY s.ID
+          sr.ID,
+          sr.TipologiaPresa,
+          AVG(TIMESTAMPDIFF(MINUTE, r.DataInizio, r.DataFine)) AS DurataMediaMinuti
+        FROM StazioneRicarica sr
+        JOIN Ricarica r ON sr.ID = r.StazioneRicaricaID
+        WHERE sr.ID = ? AND r.DataFine IS NOT NULL
+        GROUP BY sr.ID, sr.TipologiaPresa
       `;
-
-      const [stazioni] = await pool.execute(query, [`%${zona}%`]);
+      
+      const [result] = await pool.execute(query, [id]);
+      
+      if (result.length === 0) {
+        return res.status(404).json({
+          success: false,
+          message: 'Stazione di ricarica non trovata o nessuna ricarica completata'
+        });
+      }
       
       return res.status(200).json({
         success: true,
-        message: 'Colonnine di ricarica per zona recuperate con successo',
-        count: stazioni.length,
-        data: stazioni
+        message: 'Durata media delle sessioni recuperata con successo',
+        data: result[0]
       });
     } catch (error) {
-      console.error('Errore durante il recupero delle colonnine per zona:', error);
+      console.error('Errore durante il recupero della durata media delle sessioni:', error);
       return res.status(500).json({
         success: false,
-        message: 'Errore durante il recupero delle colonnine per zona',
+        message: 'Errore durante il recupero della durata media delle sessioni',
         error: error.message
       });
     }

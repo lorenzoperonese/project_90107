@@ -51,7 +51,11 @@ const clientiController = {
         EnteRilascioDocumento,
         Email,
         Password,
-        Telefono
+        Telefono,
+        NumeroCarta,
+        Scadenza,
+        CVV,
+        Intestatario
       } = req.body;
 
       console.log('Dati ricevuti per la creazione del cliente:', {
@@ -62,18 +66,26 @@ const clientiController = {
         IndirizzoResidenza,
         DocumentoNumero,
         Email,
-        Telefono
+        Telefono,
+        NumeroCarta
       });
+
+      // Inserimento MetodoPagamento
+      const metodoPagamentoQuery = `
+        INSERT INTO MetodoPagamento (NumeroCarta, Intestatario, CVV, Scadenza) 
+        VALUES (?, ?, ?, ?)
+      `;
+      await connection.execute(metodoPagamentoQuery, [NumeroCarta, Intestatario, CVV, Scadenza]);
 
       // Hash della password
       const hashedPassword = await bcrypt.hash(Password, 10);
 
-      // Inserimento Account
+      // Inserimento Account con il metodo di pagamento
       const accountQuery = `
-        INSERT INTO Account (Email, Password, Telefono, Stato, Dipendente)
-        VALUES (?, ?, ?, 'in_fase_di_verifica', FALSE)
+        INSERT INTO Account (Email, Password, Telefono, Stato, Dipendente, MetodoPagamento)
+        VALUES (?, ?, ?, 'in_fase_di_verifica', FALSE, ?)
       `;
-      const [accountResult] = await connection.execute(accountQuery, [Email, hashedPassword, Telefono]);
+      const [accountResult] = await connection.execute(accountQuery, [Email, hashedPassword, Telefono, NumeroCarta]);
       const accountId = accountResult.insertId;
 
       // Insert Documento
@@ -84,7 +96,6 @@ const clientiController = {
       await connection.execute(documentoQuery, [
         DocumentoNumero, DocumentoScadenza, EnteRilascioDocumento
       ]);
-
 
       // Inserimento Cliente
       const clienteQuery = `
@@ -98,6 +109,12 @@ const clientiController = {
         IndirizzoResidenza, DocumentoNumero
       ]);
 
+      // Aggiorno lo stato dell'account ad attivo
+      const updateAccountStatusQuery = `
+        UPDATE Account_Attivo SET Stato = 'attivo' WHERE ID = ?
+      `;
+      await connection.execute(updateAccountStatusQuery, [accountId]);
+
       await connection.commit();
 
       return res.status(201).json({
@@ -107,7 +124,8 @@ const clientiController = {
           AccountID: accountId,
           Nome,
           Cognome,
-          Email
+          Email,
+          MetodoPagamento: NumeroCarta
         }
       });
     } catch (error) {
@@ -121,59 +139,6 @@ const clientiController = {
       });
     } finally {
       connection.release();
-    }
-  },
-
-  // Operazione 3.b - Modifica1: aggiornamento dei dati di pagamento
-  updatePaymentData: async (req, res) => {
-    try {
-      const { id } = req.params;
-      const { NumeroCarta, Intestatario, CVV, Scadenza } = req.body;
-      console.log('Dati ricevuti per l\'aggiornamento del metodo di pagamento:', {
-        NumeroCarta,
-        Intestatario,
-        CVV,
-        Scadenza
-      });
-
-      const query = `INSERT INTO MetodoPagamento (NumeroCarta, Intestatario, CVV, Scadenza) 
-                      VALUES (?, ?, ?, ?)`
-      
-      // Esegui l'inserimento o l'aggiornamento del metodo di pagamento
-      const [result] = await pool.execute(query, [NumeroCarta, Intestatario, CVV, Scadenza]);
-
-      const updateAccountQuery = `
-        UPDATE Account_Attivo SET MetodoPagamento = ?
-        WHERE ID = ?
-      `;
-      await pool.execute(updateAccountQuery, [NumeroCarta, id]);
-
-
-      if (result.affectedRows === 0) {
-        return res.status(404).json({
-          success: false,
-          message: 'Cliente non trovato'
-        });
-      }
-
-      return res.status(200).json({
-        success: true,
-        message: 'Dati di pagamento aggiornati con successo',
-        data: {
-          AccountID: id,
-          NumeroCarta,
-          Intestatario,
-          CVV,
-          Scadenza
-        }
-      });
-    } catch (error) {
-      console.error('Errore durante l\'aggiornamento dei dati di pagamento:', error);
-      return res.status(500).json({
-        success: false,
-        message: 'Errore durante l\'aggiornamento dei dati di pagamento',
-        error: error.message
-      });
     }
   },
 
@@ -226,40 +191,101 @@ const clientiController = {
     }
   },
 
-  // Operazione 3.e - Ricerca: visualizzazione dettagli di un utente per ID
-  getClienteById: async (req, res) => {
+  // Op 3.b: Visualizzazione dei clienti con più di 50 noleggi nell'ultimo anno
+  getFrequentClients: async (req, res) => {
     try {
-      const { id } = req.params;
-
       const query = `
         SELECT 
-          c.AccountID, c.Nome, c.Cognome, c.DataNascita, c.LuogoNascita,
-          c.IndirizzoResidenza, c.PatenteNumero, c.DocumentoNumero,
-          a.Email, a.Telefono, a.Stato, a.DataRegistrazione
+          c.AccountID,
+          c.Nome,
+          c.Cognome,
+          COUNT(n.ID) AS NumeroNoleggi
         FROM Cliente c
-        JOIN Account a ON c.AccountID = a.ID
-        WHERE c.AccountID = ?
+        JOIN Noleggia n ON c.AccountID = n.ClienteAccountID
+        WHERE n.DataInizio >= DATE_SUB(CURDATE(), INTERVAL 1 YEAR)
+        GROUP BY c.AccountID, c.Nome, c.Cognome
+        HAVING NumeroNoleggi > 50
       `;
 
-      const [clienti] = await pool.execute(query, [id]);
+      const [clients] = await pool.execute(query);
       
-      if (clienti.length === 0) {
-        return res.status(404).json({
-          success: false,
-          message: 'Cliente non trovato'
-        });
-      }
-
       return res.status(200).json({
         success: true,
-        message: 'Dettagli cliente recuperati con successo',
-        data: clienti[0]
+        message: 'Clienti frequenti recuperati con successo',
+        count: clients.length,
+        data: clients
       });
     } catch (error) {
-      console.error('Errore durante il recupero del cliente:', error);
+      console.error('Errore durante il recupero dei clienti frequenti:', error);
       return res.status(500).json({
         success: false,
-        message: 'Errore durante il recupero del cliente',
+        message: 'Errore durante il recupero dei clienti frequenti',
+        error: error.message
+      });
+    }
+  },
+
+  // OP 3.c: Visualizzazione dei clienti con abbonamento attivo
+  getClientsWithSubscription: async (req, res) => {
+    try {
+      const query = `
+        SELECT 
+          c.AccountID,
+          c.Nome,
+          c.Cognome,
+          aa.TipoAbbonamento,
+          aa.DataFineValidita
+        FROM Cliente c
+        JOIN Acquisti_Abbonamenti aa ON c.AccountID = aa.ClienteAccountID
+        WHERE aa.DataFineValidita >= CURDATE()
+      `;
+
+      const [clients] = await pool.execute(query);
+      
+      return res.status(200).json({
+        success: true,
+        message: 'Clienti con abbonamento attivo recuperati con successo',
+        count: clients.length,
+        data: clients
+      });
+    } catch (error) {
+      console.error('Errore durante il recupero dei clienti con abbonamento:', error);
+      return res.status(500).json({
+        success: false,
+        message: 'Errore durante il recupero dei clienti con abbonamento',
+        error: error.message
+      });
+    }
+  },
+
+  // Op 3.d: Visualizzazione dei clienti più fedeli
+  getLoyalClients: async (req, res) => {
+    try {
+      const query = `
+        SELECT 
+          c.AccountID,
+          c.Nome,
+          c.Cognome,
+          a.DataRegistrazione
+        FROM Cliente c
+        JOIN Account a ON c.AccountID = a.ID
+        ORDER BY a.DataRegistrazione ASC
+        LIMIT 10
+      `;
+
+      const [clients] = await pool.execute(query);
+      
+      return res.status(200).json({
+        success: true,
+        message: 'Clienti più fedeli recuperati con successo',
+        count: clients.length,
+        data: clients
+      });
+    } catch (error) {
+      console.error('Errore durante il recupero dei clienti più fedeli:', error);
+      return res.status(500).json({
+        success: false,
+        message: 'Errore durante il recupero dei clienti più fedeli',
         error: error.message
       });
     }

@@ -216,75 +216,63 @@ const manutenzioniController = {
     }
   },
 
-  // Operazione: visualizzazione veicoli che hanno effettuato manutenzioni/revisioni presso una specifica officina
-  getVehiclesByWorkshop: async (req, res) => {
+  // Operazione 4.b - Visualizzazione tipologie di intervento più costose in media
+  getCostiMedi: async (req, res) => {
     try {
-      const { officinaId } = req.params;
-      console.log('ID Officina ricevuto:', officinaId);
-
       const query = `
-        SELECT DISTINCT
-          v.ID,
-          v.Targa,
-          v.Tipologia,
-          v.Modello,
-          v.Marca,
-          v.PercentualeBatteria,
-          v.Stato,
-          v.ChilometraggioTotale,
-          o.Nome as OfficinaNome,
-          o.Indirizzo as OfficinaIndirizzo,
-          'Intervento' as TipoManutenzione,
-          ei.Data as DataUltimoIntervento,
-          ei.Tipologia as DescrizioneIntervento,
-          ei.Costo as CostoUltimoIntervento,
-          COUNT(ei.ID) as NumeroInterventi
-        FROM Veicolo v
-        INNER JOIN EsegueIntervento ei ON v.ID = ei.VeicoloID
-        INNER JOIN Officina o ON ei.OfficinaID = o.ID
-        WHERE o.ID = ?
-        GROUP BY v.ID, v.Targa, v.Tipologia, v.Modello, v.Marca, v.PercentualeBatteria, v.Stato, v.ChilometraggioTotale, o.Nome, o.Indirizzo, ei.Data, ei.Tipologia, ei.Costo
-        
-        UNION
-        
-        SELECT DISTINCT
-          v.ID,
-          v.Targa,
-          v.Tipologia,
-          v.Modello,
-          v.Marca,
-          v.PercentualeBatteria,
-          v.Stato,
-          v.ChilometraggioTotale,
-          o.Nome as OfficinaNome,
-          o.Indirizzo as OfficinaIndirizzo,
-          'Revisione' as TipoManutenzione,
-          er.Data as DataUltimoIntervento,
-          'Revisione' as DescrizioneIntervento,
-          er.Costo as CostoUltimoIntervento,
-          COUNT(er.ID) as NumeroInterventi
-        FROM Veicolo v
-        INNER JOIN EsegueRevisione er ON v.ID = er.VeicoloID
-        INNER JOIN Officina o ON er.OfficinaID = o.ID
-        WHERE o.ID = ?
-        GROUP BY v.ID, v.Targa, v.Tipologia, v.Modello, v.Marca, v.PercentualeBatteria, v.Stato, v.ChilometraggioTotale, o.Nome, o.Indirizzo, er.Data, er.Costo
-        
-        ORDER BY DataUltimoIntervento DESC
+        SELECT 
+            ei.Tipologia,
+            AVG(ei.Costo) AS CostoMedio
+        FROM EsegueIntervento ei
+        GROUP BY ei.Tipologia
+        ORDER BY CostoMedio DESC
+        LIMIT 5
       `;
-
-      const [veicoli] = await pool.execute(query, [officinaId, officinaId]);
+      
+      const [result] = await pool.execute(query);
       
       return res.status(200).json({
         success: true,
-        message: `Veicoli che hanno effettuato manutenzioni/revisioni presso l'officina ID ${officinaId} recuperati con successo`,
-        count: veicoli.length,
-        data: veicoli
+        message: 'Costi medi per tipologia di intervento recuperati con successo',
+        count: result.length,
+        data: result
       });
     } catch (error) {
-      console.error('Errore durante il recupero dei veicoli per officina:', error);
+      console.error('Errore durante il recupero dei costi medi per tipologia:', error);
       return res.status(500).json({
         success: false,
-        message: 'Errore durante il recupero dei veicoli per officina',
+        message: 'Errore durante il recupero dei costi medi per tipologia',
+        error: error.message
+      });
+    }
+  },
+
+  // Operazione 4.c - Andamento mensile dei costi di manutenzione
+  getAndamentoMensile: async (req, res) => {
+    try {
+      const query = `
+        SELECT 
+            YEAR(Data) AS Anno,
+            MONTH(Data) AS Mese,
+            SUM(Costo) AS CostoTotale
+        FROM EsegueIntervento
+        GROUP BY Anno, Mese
+        ORDER BY Anno DESC, Mese DESC
+      `;
+      
+      const [result] = await pool.execute(query);
+      
+      return res.status(200).json({
+        success: true,
+        message: 'Andamento mensile dei costi di manutenzione recuperato con successo',
+        count: result.length,
+        data: result
+      });
+    } catch (error) {
+      console.error('Errore durante il recupero dell\'andamento mensile dei costi:', error);
+      return res.status(500).json({
+        success: false,
+        message: 'Errore durante il recupero dell\'andamento mensile dei costi',
         error: error.message
       });
     }

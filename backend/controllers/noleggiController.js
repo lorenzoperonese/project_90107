@@ -112,33 +112,95 @@ const noleggiController = {
     }
   },
 
-  // Operazione 2.c - Ricerca: visualizzare lo storico dei noleggi per utente
-  getNoleggiByUser: async (req, res) => {
+  // Operazione 2.d - Visualizzazione della durata media dei noleggi per ogni tipologia
+  getDurataMediaPerTipologia: async (req, res) => {
     try {
-      const { clienteId } = req.params;
-
       const query = `
         SELECT 
-          n.*, v.Targa as VeicoloTarga, v.Modello as VeicoloModello, v.Marca as VeicoloMarca
+          v.Tipologia,
+          AVG(n.DurataMinuti) AS DurataMediaMinuti
         FROM Noleggia n
-        LEFT JOIN Veicolo v ON n.VeicoloID = v.ID
-        WHERE n.ClienteAccountID = ?
-        ORDER BY n.DataInizio DESC
+        JOIN Veicolo v ON n.VeicoloID = v.ID
+        WHERE n.DurataMinuti IS NOT NULL
+        GROUP BY v.Tipologia
       `;
 
-      const [noleggi] = await pool.execute(query, [clienteId]);
+      const [result] = await pool.execute(query);
       
       return res.status(200).json({
         success: true,
-        message: 'Storico noleggi recuperato con successo',
-        count: noleggi.length,
-        data: noleggi
+        message: 'Durata media per tipologia recuperata con successo',
+        data: result
       });
     } catch (error) {
-      console.error('Errore durante il recupero dello storico noleggi:', error);
+      console.error('Errore durante il recupero della durata media:', error);
       return res.status(500).json({
         success: false,
-        message: 'Errore durante il recupero dello storico noleggi',
+        message: 'Errore durante il recupero della durata media',
+        error: error.message
+      });
+    }
+  },
+
+  // Operazione 2.e - Visualizzazione dei veicoli con più chilometri percorsi
+  getVeicoliConPiuKm: async (req, res) => {
+    try {
+      const query = `
+        SELECT 
+          v.ID,
+          v.Modello,
+          v.Marca,
+          SUM(n.ChilometriPercorsi) AS KmTotaliNoleggi
+        FROM Noleggia n
+        JOIN Veicolo v ON n.VeicoloID = v.ID
+        WHERE n.ChilometriPercorsi IS NOT NULL
+        GROUP BY v.ID, v.Modello, v.Marca
+        ORDER BY KmTotaliNoleggi DESC
+        LIMIT 10
+      `;
+
+      const [result] = await pool.execute(query);
+      
+      return res.status(200).json({
+        success: true,
+        message: 'Veicoli con più chilometri recuperati con successo',
+        data: result
+      });
+    } catch (error) {
+      console.error('Errore durante il recupero dei veicoli con più km:', error);
+      return res.status(500).json({
+        success: false,
+        message: 'Errore durante il recupero dei veicoli con più km',
+        error: error.message
+      });
+    }
+  },
+
+  // Operazione 2.f - Visualizzazione andamento mensile dei noleggi
+  getAndamentoMensile: async (req, res) => {
+    try {
+      const query = `
+        SELECT 
+          YEAR(DataInizio) AS Anno,
+          MONTH(DataInizio) AS Mese,
+          COUNT(*) AS NumeroNoleggi
+        FROM Noleggia
+        GROUP BY Anno, Mese
+        ORDER BY Anno DESC, Mese DESC
+      `;
+
+      const [result] = await pool.execute(query);
+      
+      return res.status(200).json({
+        success: true,
+        message: 'Andamento mensile recuperato con successo',
+        data: result
+      });
+    } catch (error) {
+      console.error('Errore durante il recupero dell\'andamento mensile:', error);
+      return res.status(500).json({
+        success: false,
+        message: 'Errore durante il recupero dell\'andamento mensile',
         error: error.message
       });
     }

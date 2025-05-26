@@ -11,10 +11,13 @@ router.put('/:id/state', vehicleController.updateVehicleState);
 // Operazione 1.c - Cancellazione: rimozione di un veicolo dalla flotta
 router.delete('/:id', vehicleController.deleteVehicle);
 
-// Operazione 1.d - Ricerca1: visualizzazione dei dettagli di un veicolo per targa
-router.get('/targa/:targa', vehicleController.getVehicleByTarga);
-
 // Operazione 1.e - Ricerca2: visualizzazione veicoli per tipologia con batteria > 20%
 router.get('/tipologia/:tipologia', vehicleController.getVehiclesByTypeAndBattery);
+
+// Operazione 1.f - Visualizzazione dei 5 veicoli più noleggiati nell'ultimo anno per tipologia
+router.get('/piu-noleggiati/:tipologia', vehicleController.getMostRentedVehiclesByType);
+
+// Operazione 1.g - Visualizzazione dei 5 veicoli che hanno ricevuto più interventi di manutenzione nell'ultimo anno
+router.get('/piu-manutenzione', vehicleController.getMostMaintenanceVehicles);
 
 module.exports = router; 

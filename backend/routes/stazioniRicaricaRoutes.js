@@ -8,10 +8,10 @@ router.post('/', stazioniRicaricaController.insertStazioneRicarica);
 // Operazione 7.b - Modifica: aggiornamento dello stato della colonnina
 router.put('/:id/stato', stazioniRicaricaController.updateStatoStazione);
 
-// Operazione 7.c - Cancellazione: rimozione di una stazione
-router.delete('/:id', stazioniRicaricaController.deleteStazioneRicarica);
+// Op 7.c - Visualizzazione energia totale erogata da una stazione
+router.get('/:id/energia-totale', stazioniRicaricaController.getEnergiaTotale);
 
-// Operazione 7.d - Ricerca: visualizzazione colonnine per zona geografica
-router.get('/zona/:zona', stazioniRicaricaController.getStazioniByZona);
+// Op 7.d - Visualizzazione durata media delle sessioni per stazione
+router.get('/:id/durata-media', stazioniRicaricaController.getDurataMediaSessioni);
 
 module.exports = router; 

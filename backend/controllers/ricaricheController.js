@@ -91,80 +91,71 @@ const ricaricheController = {
     }
   },
 
-  // Operazione 5.c - Ricerca1: visualizzazione storico delle ricariche per veicolo
-  getRicaricheByVehicle: async (req, res) => {
+  // Veicoli che hanno effettuato più ricariche nell'ultimo mese
+  getVeicoliPiuRicaricati: async (req, res) => {
     try {
-      const { veicoloId } = req.params;
-
       const query = `
         SELECT 
-          r.ID, r.OperatoreAccountID, r.StazioneRicaricaID,
-          r.DataInizio, r.DataFine, r.CostoSessione, r.KWhCaricati,
-          v.Targa as VeicoloTarga, v.Modello as VeicoloModello,
-          s.TipologiaPresa as StazioneTipologia,
-          ST_X(s.GPS) as StazioneLatitudine, ST_Y(s.GPS) as StazioneLongitudine,
-          acc.Email as OperatoreEmail
-        FROM Ricarica r
-        LEFT JOIN Veicolo v ON r.VeicoloID = v.ID
-        LEFT JOIN StazioneRicarica s ON r.StazioneRicaricaID = s.ID
-        LEFT JOIN Account acc ON r.OperatoreAccountID = acc.ID
-        WHERE r.VeicoloID = ?
-        ORDER BY r.DataInizio DESC
+            v.ID,
+            v.Targa,
+            v.Modello,
+            v.Marca,
+            COUNT(r.ID) AS NumeroRicariche
+        FROM Veicolo v
+        JOIN Ricarica r ON v.ID = r.VeicoloID
+        WHERE r.DataInizio >= DATE_SUB(CURDATE(), INTERVAL 1 MONTH)
+        GROUP BY v.ID, v.Targa, v.Modello, v.Marca
+        ORDER BY NumeroRicariche DESC
+        LIMIT 10
       `;
-
-      const [ricariche] = await pool.execute(query, [veicoloId]);
+      
+      const [veicoli] = await pool.execute(query);
       
       return res.status(200).json({
         success: true,
-        message: 'Storico ricariche per veicolo recuperato con successo',
-        count: ricariche.length,
-        data: ricariche
+        message: 'Veicoli più ricaricati nell\'ultimo mese recuperati con successo',
+        count: veicoli.length,
+        data: veicoli
       });
     } catch (error) {
-      console.error('Errore durante il recupero dello storico ricariche per veicolo:', error);
+      console.error('Errore durante il recupero dei veicoli più ricaricati:', error);
       return res.status(500).json({
         success: false,
-        message: 'Errore durante il recupero dello storico ricariche per veicolo',
+        message: 'Errore durante il recupero dei veicoli più ricaricati',
         error: error.message
       });
     }
   },
 
-  // Operazione 5.d - Ricerca2: visualizzazione storico ricariche effettuate da un addetto
-  getRicaricheByOperatore: async (req, res) => {
+  // Operatori che hanno effettuato più ricariche
+  getOperatoriPiuAttivi: async (req, res) => {
     try {
-      const { operatoreId } = req.params;
-
       const query = `
         SELECT 
-          r.ID, r.VeicoloID, r.StazioneRicaricaID,
-          r.DataInizio, r.DataFine, r.CostoSessione, r.KWhCaricati,
-          v.Targa as VeicoloTarga, v.Modello as VeicoloModello,
-          s.TipologiaPresa as StazioneTipologia,
-          ST_X(s.GPS) as StazioneLatitudine, ST_Y(s.GPS) as StazioneLongitudine,
-          acc.Email as OperatoreEmail
-        FROM Ricarica r
-        LEFT JOIN Veicolo v ON r.VeicoloID = v.ID
-        LEFT JOIN StazioneRicarica s ON r.StazioneRicaricaID = s.ID
-        LEFT JOIN OperatoreRicarica op ON r.OperatoreAccountID = op.AccountID
-        LEFT JOIN Account acc ON op.AccountID = acc.ID
-        WHERE r.OperatoreAccountID = ?
-        ORDER BY r.DataInizio DESC
+            o.AccountID,
+            a.Email,
+            COUNT(r.ID) AS NumeroRicariche
+        FROM OperatoreRicarica o
+        JOIN Account a ON o.AccountID = a.ID
+        JOIN Ricarica r ON o.AccountID = r.OperatoreAccountID
+        GROUP BY o.AccountID, a.Email
+        ORDER BY NumeroRicariche DESC
+        LIMIT 5
       `;
-
-      const [ricariche] = await pool.execute(query, [operatoreId]);
+      
+      const [operatori] = await pool.execute(query);
       
       return res.status(200).json({
         success: true,
-        message: 'Storico ricariche per operatore recuperato con successo',
-        count: ricariche.length,
-        data: ricariche
+        message: 'Operatori più attivi recuperati con successo',
+        count: operatori.length,
+        data: operatori
       });
     } catch (error) {
-      console.error('Errore durante il recupero dello storico ricariche per operatore:', error);
+      console.error('Errore durante il recupero degli operatori più attivi:', error);
       return res.status(500).json({
         success: false,
-        message: 'Errore durante il recupero dello storico ricariche per operatore',
+        message: 'Errore durante il recupero degli operatori più attivi',
         error: error.message
       });
     }

@@ -35,6 +35,7 @@
           :section="section"
           :operation="selectedOperation"
           :form-data="formData"
+          :search-results="searchResults"
           @form-submit="$emit('form-submit')"
           @cancel="$emit('close')"
           @update-field="(fieldName, value) => $emit('update-field', fieldName, value)"
@@ -60,7 +61,8 @@ defineProps({
   section: Object,
   operations: Array,
   selectedOperation: String,
-  formData: Object
+  formData: Object,
+  searchResults: Object
 })
 
 const emit = defineEmits(['close', 'operation-selected', 'form-submit', 'update-field'])

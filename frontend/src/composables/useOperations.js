@@ -13,7 +13,22 @@ const operationDefinitions = {
   'read-veicoli-caricati': { id: 'read-veicoli-caricati', name: 'Veicoli Caricati', icon: '🚗⚡', color: 'bg-blue-500' },
   'read-clienti-interventi': { id: 'read-clienti-interventi', name: 'Clienti pre Intervento', icon: '👥🔧', color: 'bg-blue-500' },
   'read-veicoli-officina': { id: 'read-veicoli-officina', name: 'Veicoli per Officina', icon: '🚗🔧', color: 'bg-blue-500' },
-  'read-servizi': { id: 'read-servizi', name: 'Ricerca per Servizi', icon: '🛎️', color: 'bg-blue-500' }
+  'read-servizi': { id: 'read-servizi', name: 'Ricerca per Servizi', icon: '🛎️', color: 'bg-blue-500' },
+  'read-most-rented': { id: 'read-most-rented', name: 'Più Noleggiati', icon: '📊', color: 'bg-blue-500' },
+  'read-most-maintenance': { id: 'read-most-maintenance', name: 'Più in Manutenzione', icon: '🔧', color: 'bg-blue-500' },
+  'read-avg-duration': { id: 'read-avg-duration', name: 'Durata Media', icon: '⏱️', color: 'bg-blue-500' },
+  'read-km-traveled': { id: 'read-km-traveled', name: 'Km Percorsi', icon: '🛣️', color: 'bg-blue-500' },
+  'read-monthly-trend': { id: 'read-monthly-trend', name: 'Andamento Mensile', icon: '📈', color: 'bg-blue-500' },
+  'read-frequent': { id: 'read-frequent', name: 'Clienti Frequenti', icon: '🔄', color: 'bg-blue-500' },
+  'read-with-subscription': { id: 'read-with-subscription', name: 'Con Abbonamento', icon: '🔔', color: 'bg-blue-500' },
+  'read-loyal': { id: 'read-loyal', name: 'Clienti Fedeli', icon: '🏅', color: 'bg-blue-500' },
+  'read-expensive-interventions': { id: 'read-expensive-interventions', name: 'Interventi Costosi', icon: '💸', color: 'bg-blue-500' },
+  'read-monthly-costs': { id: 'read-monthly-costs', name: 'Costi Mensili', icon: '💰', color: 'bg-blue-500' },
+  'read-most-recharged-vehicles': { id: 'read-most-recharged-vehicles', name: 'Veicoli Più Ricaricati', icon: '🔋', color: 'bg-blue-500' },
+  'read-most-active-operators': { id: 'read-most-active-operators', name: 'Operatori Più Attivi', icon: '👨‍🔧', color: 'bg-blue-500' },
+  'read-total-energy': { id: 'read-total-energy', name: 'Energia Totale', icon: '⚡', color: 'bg-blue-500' },
+  'read-most-active-centers': { id: 'read-most-active-centers', name: 'Centri Più Attivi', icon: '🏢', color: 'bg-blue-500' },
+  'read-avg-session-duration': { id: 'read-avg-session-duration', name: 'Durata Media Sessione', icon: '⏱️', color: 'bg-blue-500' }
 }
 
 const buttonTexts = {
@@ -36,6 +51,7 @@ const buttonTexts = {
 
 export function useOperations() {
   return {
+    operationDefinitions,
     getAvailableOperations: (section) => section?.operations.map(opId => operationDefinitions[opId]) || [],
     getFormFields: (section, selectedOperation, formData = {}) => {
       if (!section) return []
@@ -60,6 +76,39 @@ export function useOperations() {
             { value: 'monopattino', label: 'Monopattino Elettrico' }
           ]
         }],
+        'read-most-rented': [{ name: 'Tipologia', 
+          label: 'Tipologia', 
+          type: 'select', 
+          options: [
+            { value: 'auto', label: 'Auto Elettrica' },
+            { value: 'scooter', label: 'Scooter Elettrico' },
+            { value: 'bicicletta', label: 'Bicicletta Elettrica' },
+            { value: 'monopattino', label: 'Monopattino Elettrico' }
+          ]
+        }],
+        'read-most-maintenance': [{}],
+        'read-avg-duration': [{ name: 'Tipologia', 
+          label: 'Tipologia', 
+          type: 'select', 
+          options: [
+            { value: 'auto', label: 'Auto Elettrica' },
+            { value: 'scooter', label: 'Scooter Elettrico' },
+            { value: 'bicicletta', label: 'Bicicletta Elettrica' },
+            { value: 'monopattino', label: 'Monopattino Elettrico' }
+          ]
+        }],
+        'read-km-traveled': [{}],
+        'read-monthly-trend': [{}],
+        'read-frequent': [{}],
+        'read-with-subscription': [{}],
+        'read-loyal': [{}],
+        'read-expensive-interventions': [{}],
+        'read-monthly-costs': [{}],
+        'read-most-recharged-vehicles': [{}],
+        'read-most-active-operators': [{}],
+        'read-total-energy': [{}],
+        'read-most-active-centers': [{}],
+        'read-avg-session-duration': [{}],
         'read-vehicle': [{ name: 'VeicoloID', label: 'ID Veicolo', type: 'number', placeholder: '123' }],
         'read-operator': [{ name: 'OperatoreAccountID', label: 'ID Operatore', type: 'number', placeholder: '456' }],
         'read-centro': [{ }],

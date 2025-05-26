@@ -35,112 +35,79 @@ const centriRicaricaController = {
     }
   },
 
-  // Operazione 6.b - Cancellazione: rimozione di un centro di ricarica
-  deleteCentroRicarica: async (req, res) => {
+  // Op 6.b: Visualizzazione energia totale ricaricata per centro di ricarica
+  getEnergiaTotale: async (req, res) => {
     try {
-      const { indirizzo } = req.params;
-      const decodedIndirizzo = decodeURIComponent(indirizzo);
-
-      const query = 'DELETE FROM CentroRicarica WHERE Indirizzo = ?';
-      const [result] = await pool.execute(query, [decodedIndirizzo]);
-
-      if (result.affectedRows === 0) {
-        return res.status(404).json({
-          success: false,
-          message: 'Centro di ricarica non trovato'
-        });
-      }
-
-      return res.status(200).json({
-        success: true,
-        message: 'Centro di ricarica rimosso con successo',
-        data: { Indirizzo: decodedIndirizzo }
-      });
-    } catch (error) {
-      console.error('Errore durante la rimozione del centro di ricarica:', error);
-      return res.status(500).json({
-        success: false,
-        message: 'Errore durante la rimozione del centro di ricarica',
-        error: error.message
-      });
-    }
-  },
-
-  // Operazione 6.c - Ricerca1: visualizzazione dei centri ordinati in base al numero di stazioni disponibili
-  getCentri: async (req, res) => {
-    try {
+      const { id } = req.params;
 
       const query = `
-        SELECT *
-        FROM CentroRicarica
-        ORDER BY NumeroStazioniDisponibili DESC
+        SELECT 
+          cr.ID,
+          cr.Indirizzo,
+          SUM(r.KWhCaricati) AS EnergiaTotale
+        FROM CentroRicarica cr
+        JOIN StazioneRicarica sr ON cr.ID = sr.CentroRicarica
+        JOIN Ricarica r ON sr.ID = r.StazioneRicaricaID
+        WHERE cr.ID = ?
+        GROUP BY cr.ID, cr.Indirizzo
       `;
-
-      const [centri] = await pool.execute(query);
-      if (centri.length === 0) {
+      
+      const [result] = await pool.execute(query, [id]);
+      
+      if (result.length === 0) {
         return res.status(404).json({
           success: false,
-          message: 'Nessun centro di ricarica trovato'
+          message: 'Centro di ricarica non trovato o nessuna ricarica effettuata'
         });
       }
-      return res.status(200).json({
-        success: true,
-        message: 'Centri di ricarica recuperati con successo',
-        count: centri.length,
-        data: centri
-      });
-    } catch (error) { 
-      console.error('Errore durante il recupero dei centri di ricarica:', error);
-      return res.status(500).json({
-        success: false,
-        message: 'Errore durante il recupero dei centri di ricarica',
-        error: error.message
-      });
-    }
-  },
-
-  // Operazione 6.d - Ricerca2: visualizzazione veicoli caricati in un centro di ricarica
-  getVehiclesByChargingCenter: async (req, res) => {
-    try {
-      const { indirizzo } = req.params;
-      const decodedIndirizzo = decodeURIComponent(indirizzo);
-      console.log('Indirizzo centro di ricarica ricevuto:', decodedIndirizzo);
-
-      const query = `
-        SELECT DISTINCT 
-          v.ID,
-          v.Targa,
-          v.Tipologia,
-          v.Modello,
-          v.Marca,
-          v.PercentualeBatteria,
-          v.Stato,
-          v.ChilometraggioTotale,
-          COUNT(r.ID) as NumeroRicariche,
-          MAX(r.DataInizio) as UltimaRicarica
-        FROM Veicolo v
-        INNER JOIN Ricarica r ON v.ID = r.VeicoloID
-        INNER JOIN StazioneRicarica sr ON r.StazioneRicaricaID = sr.ID
-        INNER JOIN CentroRicarica cr ON sr.CentroRicaricaIndirizzo = cr.Indirizzo
-        WHERE cr.Indirizzo = ?
-        GROUP BY v.ID, v.Targa, v.Tipologia, v.Modello, v.Marca, v.PercentualeBatteria, v.Stato, v.ChilometraggioTotale
-        ORDER BY UltimaRicarica DESC, NumeroRicariche DESC
-      `;
-
-      const [vehicles] = await pool.execute(query, [decodedIndirizzo]);
       
       return res.status(200).json({
         success: true,
-        message: `Veicoli caricati nel centro di ricarica "${decodedIndirizzo}" recuperati con successo`,
-        count: vehicles.length,
-        data: vehicles
+        message: 'Energia totale ricaricata recuperata con successo',
+        data: result[0]
       });
     } catch (error) {
-      console.error('Errore durante il recupero dei veicoli caricati nel centro:', error);
-      return res.status(500).json({ 
-        success: false, 
-        message: 'Errore durante il recupero dei veicoli caricati nel centro', 
-        error: error.message 
+      console.error('Errore durante il recupero dell\'energia totale:', error);
+      return res.status(500).json({
+        success: false,
+        message: 'Errore durante il recupero dell\'energia totale',
+        error: error.message
+      });
+    }
+  },
+
+  // Op 6.c: Visualizzazione dei 5 centri di ricarica con più ricariche effettuate nell'ultimo anno
+  getCentriPiuAttivi: async (req, res) => {
+    try {
+      const query = `
+        SELECT 
+          cr.ID,
+          cr.Indirizzo,
+          cr.NumeroStazioniDisponibili,
+          COUNT(r.ID) AS NumeroRicariche
+        FROM CentroRicarica cr
+        JOIN StazioneRicarica sr ON cr.ID = sr.CentroRicarica
+        JOIN Ricarica r ON sr.ID = r.StazioneRicaricaID
+        WHERE r.DataInizio >= DATE_SUB(CURDATE(), INTERVAL 1 YEAR)
+        GROUP BY cr.ID, cr.Indirizzo, cr.NumeroStazioniDisponibili
+        ORDER BY NumeroRicariche DESC
+        LIMIT 5
+      `;
+      
+      const [centri] = await pool.execute(query);
+      
+      return res.status(200).json({
+        success: true,
+        message: 'Centri di ricarica più attivi recuperati con successo',
+        count: centri.length,
+        data: centri
+      });
+    } catch (error) {
+      console.error('Errore durante il recupero dei centri più attivi:', error);
+      return res.status(500).json({
+        success: false,
+        message: 'Errore durante il recupero dei centri più attivi',
+        error: error.message
       });
     }
   }

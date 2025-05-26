@@ -5,16 +5,19 @@ const clientiController = require('../controllers/clientiController');
 // Operazione 3.a - Inserimento: registrazione di un nuovo utente al servizio
 router.post('/register', clientiController.registerCliente);
 
-// Operazione 3.b - Modifica1: aggiornamento dei dati di pagamento
-router.put('/:id/payment', clientiController.updatePaymentData);
-
 // Operazione 3.c - Modifica2: aggiornamento dei dati relativi alla patente
 router.put('/:id/license', clientiController.updateLicenseData);
 
 // Operazione 3.d - Cancellazione: rimozione dell'account utente
 router.delete('/:id', clientiController.deleteCliente);
 
-// Operazione 3.e - Ricerca: visualizzazione dettagli di un utente per ID
-router.get('/:id', clientiController.getClienteById);
+// Op 3.b: Visualizzazione dei clienti con più di 50 noleggi nell'ultimo anno
+router.get('/frequenti', clientiController.getFrequentClients);
+
+// OP 3.c: Visualizzazione dei clienti con abbonamento attivo
+router.get('/abbonati', clientiController.getClientsWithSubscription);
+
+// Op 3.d: Visualizzazione dei clienti più fedeli
+router.get('/fedeli', clientiController.getLoyalClients);
 
 module.exports = router; 
