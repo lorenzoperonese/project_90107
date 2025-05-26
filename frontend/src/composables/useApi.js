@@ -132,9 +132,16 @@ export function useApi() {
           body: JSON.stringify(formData)
         })
         
-      case 'read':
+      case 'read-clienti-interventi':
         if (!formData.VeicoloID) throw new Error('ID Veicolo richiesto per la ricerca')
-        return fetch(`${baseUrl}/veicolo/${formData.VeicoloID}`, {
+        return fetch(`${baseUrl}/veicolo/${formData.VeicoloID}/clienti`, {
+          method: 'GET',
+          headers: { 'Content-Type': 'application/json' }
+        })
+        
+      case 'read-veicoli-officina':
+        if (!formData.OfficinaID) throw new Error('ID Officina richiesto per la ricerca')
+        return fetch(`${baseUrl}/officina/${formData.OfficinaID}/veicoli`, {
           method: 'GET',
           headers: { 'Content-Type': 'application/json' }
         })
@@ -202,6 +209,13 @@ export function useApi() {
         
       case 'read-centro':
         return fetch(`${baseUrl}`, {
+          method: 'GET',
+          headers: { 'Content-Type': 'application/json' }
+        })
+        
+      case 'read-veicoli-caricati':
+        if (!formData.Indirizzo) throw new Error('Indirizzo centro richiesto per la ricerca')
+        return fetch(`${baseUrl}/${encodeURIComponent(formData.Indirizzo)}/veicoli`, {
           method: 'GET',
           headers: { 'Content-Type': 'application/json' }
         })

@@ -1,8 +1,8 @@
 <template>
   <div class="fixed inset-0 bg-black/50 flex items-center justify-center z-50 p-4" @click="handleBackdropClick">
-    <div class="bg-white rounded-3xl shadow-2xl w-full max-w-4xl h-[85vh] flex flex-col" @click.stop>
+    <div class="bg-white rounded-3xl shadow-2xl w-full max-w-4xl h-[85vh] flex flex-col overflow-hidden" @click.stop>
       <!-- Header -->
-      <div class="bg-gradient-to-r from-blue-600 to-blue-700 p-6 rounded-t-3xl">
+      <div class="bg-gradient-to-r from-blue-600 to-blue-700 p-6 rounded-t-3xl flex-shrink-0">
         <div class="flex items-center justify-between">
           <div class="flex items-center">
             <span class="text-3xl mr-3">{{ section.icon }}</span>
@@ -20,28 +20,32 @@
       </div>
 
       <!-- Operation Buttons -->
-      <OperationButtons
-        :operations="operations"
-        :selected-operation="selectedOperation"
-        @operation-selected="$emit('operation-selected', $event)"
-      />
+      <div class="flex-shrink-0">
+        <OperationButtons
+          :operations="operations"
+          :selected-operation="selectedOperation"
+          @operation-selected="$emit('operation-selected', $event)"
+        />
+      </div>
 
-      <!-- Dynamic Form Content -->
-      <DynamicForm
-        v-if="selectedOperation"
-        :section="section"
-        :operation="selectedOperation"
-        :form-data="formData"
-        @form-submit="$emit('form-submit')"
-        @cancel="$emit('close')"
-        @update-field="(fieldName, value) => $emit('update-field', fieldName, value)"
-      />
+      <!-- Dynamic Form Content - Scrollable Area -->
+      <div class="flex-1 overflow-hidden flex flex-col min-h-0">
+        <DynamicForm
+          v-if="selectedOperation"
+          :section="section"
+          :operation="selectedOperation"
+          :form-data="formData"
+          @form-submit="$emit('form-submit')"
+          @cancel="$emit('close')"
+          @update-field="(fieldName, value) => $emit('update-field', fieldName, value)"
+        />
 
-      <!-- Placeholder when no operation selected -->
-      <div v-else class="flex-1 flex items-center justify-center text-gray-500">
-        <div class="text-center">
-          <div class="text-6xl mb-4">🎯</div>
-          <p class="text-lg">Seleziona un'operazione per iniziare</p>
+        <!-- Placeholder when no operation selected -->
+        <div v-else class="flex-1 flex items-center justify-center text-gray-500 rounded-b-3xl">
+          <div class="text-center">
+            <div class="text-6xl mb-4">🎯</div>
+            <p class="text-lg">Seleziona un'operazione per iniziare</p>
+          </div>
         </div>
       </div>
     </div>

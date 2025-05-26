@@ -97,9 +97,53 @@ const centriRicaricaController = {
         error: error.message
       });
     }
+  },
+
+  // Operazione 6.d - Ricerca2: visualizzazione veicoli caricati in un centro di ricarica
+  getVehiclesByChargingCenter: async (req, res) => {
+    try {
+      const { indirizzo } = req.params;
+      const decodedIndirizzo = decodeURIComponent(indirizzo);
+      console.log('Indirizzo centro di ricarica ricevuto:', decodedIndirizzo);
+
+      const query = `
+        SELECT DISTINCT 
+          v.ID,
+          v.Targa,
+          v.Tipologia,
+          v.Modello,
+          v.Marca,
+          v.PercentualeBatteria,
+          v.StatoAttuale,
+          v.ChilometraggioTotale,
+          COUNT(r.ID) as NumeroRicariche,
+          MAX(r.DataInizio) as UltimaRicarica
+        FROM Veicolo v
+        INNER JOIN Ricarica r ON v.ID = r.VeicoloID
+        INNER JOIN StazioneRicarica sr ON r.StazioneRicaricaID = sr.ID
+        INNER JOIN CentroRicarica cr ON sr.CentroRicaricaIndirizzo = cr.Indirizzo
+        WHERE cr.Indirizzo = ?
+        GROUP BY v.ID, v.Targa, v.Tipologia, v.Modello, v.Marca, v.PercentualeBatteria, v.StatoAttuale, v.ChilometraggioTotale
+        ORDER BY UltimaRicarica DESC, NumeroRicariche DESC
+      `;
+
+      const [vehicles] = await pool.execute(query, [decodedIndirizzo]);
+      
+      return res.status(200).json({
+        success: true,
+        message: `Veicoli caricati nel centro di ricarica "${decodedIndirizzo}" recuperati con successo`,
+        count: vehicles.length,
+        data: vehicles
+      });
+    } catch (error) {
+      console.error('Errore durante il recupero dei veicoli caricati nel centro:', error);
+      return res.status(500).json({ 
+        success: false, 
+        message: 'Errore durante il recupero dei veicoli caricati nel centro', 
+        error: error.message 
+      });
+    }
   }
-
-
 };
 
 module.exports = centriRicaricaController; 

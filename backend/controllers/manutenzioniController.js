@@ -1,98 +1,95 @@
 const { pool } = require('../config/database');
 
 const manutenzioniController = {
-  // Operazione: inserimento di un intervento tecnico
+  // Operazione: inserimento di un intervento (manutenzione o revisione)
   insertIntervento: async (req, res) => {
     try {
       const {
         VeicoloID,
         OfficinaID,
-        Data,
+        TipoIntervento, // 'manutenzione' o 'revisione'
+        DataIntervento,
         Costo,
-        Tipologia,
-        Descrizione
+        Descrizione,
+        Note
       } = req.body;
 
-      const query = `
-        INSERT INTO EsegueIntervento (
-          VeicoloID, OfficinaID, Data, Costo, Tipologia, Descrizione
-        ) VALUES (?, ?, ?, ?, ?, ?)
-      `;
+      console.log('Dati ricevuti per l\'inserimento:', req.body);
 
-      const values = [
-        VeicoloID,
-        OfficinaID,
-        Data || new Date(),
-        Costo,
-        Tipologia,
-        Descrizione
-      ];
+      // Validazione dei campi obbligatori
+      if (!VeicoloID) {
+        return res.status(400).json({
+          success: false,
+          message: 'ID Veicolo è obbligatorio'
+        });
+      }
+
+      if (!OfficinaID) {
+        return res.status(400).json({
+          success: false,
+          message: 'ID Officina è obbligatorio'
+        });
+      }
+
+      // Validazione del tipo di intervento
+      if (!['manutenzione', 'revisione'].includes(TipoIntervento)) {
+        return res.status(400).json({
+          success: false,
+          message: 'Tipo intervento deve essere "manutenzione" o "revisione"'
+        });
+      }
+
+      let query, values;
+
+      if (TipoIntervento === 'revisione') {
+        // Inserimento nella tabella EsegueRevisione
+        query = `
+          INSERT INTO EsegueRevisione (
+            VeicoloID, OfficinaID, Data, Costo, Note
+          ) VALUES (?, ?, ?, ?, ?)
+        `;
+        values = [
+          VeicoloID,
+          OfficinaID,
+          DataIntervento || new Date(),
+          Costo || 0,
+          Note || Descrizione
+        ];
+      } else {
+        // Inserimento nella tabella EsegueIntervento
+        query = `
+          INSERT INTO EsegueIntervento (
+            VeicoloID, OfficinaID, Data, Costo, Tipologia, Descrizione
+          ) VALUES (?, ?, ?, ?, ?, ?)
+        `;
+        values = [
+          VeicoloID,
+          OfficinaID,
+          DataIntervento || new Date(),
+          Costo || 0,
+          'Manutenzione',
+          Descrizione
+        ];
+      }
 
       const [result] = await pool.execute(query, values);
 
       return res.status(201).json({
         success: true,
-        message: 'Intervento tecnico registrato con successo',
+        message: `${TipoIntervento.charAt(0).toUpperCase() + TipoIntervento.slice(1)} registrata con successo`,
         data: {
           id: result.insertId,
           VeicoloID,
           OfficinaID,
-          Tipologia,
-          Data: Data || new Date()
+          TipoIntervento,
+          Data: DataIntervento || new Date()
         }
       });
     } catch (error) {
-      console.error('Errore durante la registrazione dell\'intervento tecnico:', error);
+      console.error('Errore durante la registrazione dell\'intervento:', error);
       return res.status(500).json({
         success: false,
-        message: 'Errore durante la registrazione dell\'intervento tecnico',
-        error: error.message
-      });
-    }
-  },
-
-  // Operazione: inserimento di una revisione
-  insertRevisione: async (req, res) => {
-    try {
-      const {
-        VeicoloID,
-        OfficinaID,
-        Data,
-        Costo,
-        Note
-      } = req.body;
-
-      const query = `
-        INSERT INTO EsegueRevisione (
-          VeicoloID, OfficinaID, Data, Costo, Note
-        ) VALUES (?, ?, ?, ?, ?)
-      `;
-
-      const values = [
-        VeicoloID,
-        OfficinaID,
-        Data || new Date(),
-        Costo,
-        Note
-      ];
-
-      const [result] = await pool.execute(query, values);
-
-      return res.status(201).json({
-        success: true,
-        message: 'Revisione registrata con successo',
-        data: {
-          id: result.insertId,
-          VeicoloID,
-          OfficinaID,
-          Data: Data || new Date()
-        }
-      });
-    } catch (error) {
-      console.error('Errore durante la registrazione della revisione:', error);
-      return res.status(500).json({
-        success: false,
-        message: 'Errore durante la registrazione della revisione',
+        message: 'Errore durante la registrazione dell\'intervento',
         error: error.message
       });
     }
@@ -163,6 +160,155 @@ const manutenzioniController = {
       return res.status(500).json({
         success: false,
         message: 'Errore durante il recupero dello storico revisioni',
+        error: error.message
+      });
+    }
+  },
+
+  // Operazione: visualizzazione degli ultimi 5 clienti che hanno noleggiato veicoli con interventi
+  getLastClientsWithInterventions: async (req, res) => {
+    try {
+      const { veicoloId } = req.params;
+      console.log('ID Veicolo ricevuto:', veicoloId);
+
+      const query = `
+        SELECT DISTINCT
+          c.AccountID,
+          c.Nome,
+          c.Cognome,
+          acc.Email,
+          n.DataInizio as UltimoNoleggio,
+          n.DataFine,
+          v.Targa,
+          v.Modello,
+          v.Marca,
+          'Intervento' as TipoManutenzione,
+          ei.Data as DataIntervento,
+          ei.Tipologia as DescrizioneIntervento,
+          o.Nome as OfficinaNome
+        FROM Cliente c
+        INNER JOIN Account acc ON c.AccountID = acc.ID
+        INNER JOIN Noleggia n ON c.AccountID = n.ClienteAccountID
+        INNER JOIN Veicolo v ON n.VeicoloID = v.ID
+        INNER JOIN EsegueIntervento ei ON v.ID = ei.VeicoloID
+        INNER JOIN Officina o ON ei.OfficinaID = o.ID
+        WHERE v.ID = ?
+        
+        UNION
+        
+        SELECT DISTINCT
+          c.AccountID,
+          c.Nome,
+          c.Cognome,
+          acc.Email,
+          n.DataInizio as UltimoNoleggio,
+          n.DataFine,
+          v.Targa,
+          v.Modello,
+          v.Marca,
+          'Revisione' as TipoManutenzione,
+          er.Data as DataIntervento,
+          'Revisione' as DescrizioneIntervento,
+          o.Nome as OfficinaNome
+        FROM Cliente c
+        INNER JOIN Account acc ON c.AccountID = acc.ID
+        INNER JOIN Noleggia n ON c.AccountID = n.ClienteAccountID
+        INNER JOIN Veicolo v ON n.VeicoloID = v.ID
+        INNER JOIN EsegueRevisione er ON v.ID = er.VeicoloID
+        INNER JOIN Officina o ON er.OfficinaID = o.ID
+        WHERE v.ID = ?
+        
+        ORDER BY UltimoNoleggio DESC
+        LIMIT 5
+      `;
+
+      const [clienti] = await pool.execute(query, [veicoloId, veicoloId]);
+      
+      return res.status(200).json({
+        success: true,
+        message: `Ultimi 5 clienti che hanno noleggiato il veicolo ID ${veicoloId} con interventi recuperati con successo`,
+        count: clienti.length,
+        data: clienti
+      });
+    } catch (error) {
+      console.error('Errore durante il recupero dei clienti con interventi:', error);
+      return res.status(500).json({
+        success: false,
+        message: 'Errore durante il recupero dei clienti con interventi',
+        error: error.message
+      });
+    }
+  },
+
+  // Operazione: visualizzazione veicoli che hanno effettuato manutenzioni/revisioni presso una specifica officina
+  getVehiclesByWorkshop: async (req, res) => {
+    try {
+      const { officinaId } = req.params;
+      console.log('ID Officina ricevuto:', officinaId);
+
+      const query = `
+        SELECT DISTINCT
+          v.ID,
+          v.Targa,
+          v.Tipologia,
+          v.Modello,
+          v.Marca,
+          v.PercentualeBatteria,
+          v.StatoAttuale,
+          v.ChilometraggioTotale,
+          o.Nome as OfficinaNome,
+          o.Indirizzo as OfficinaIndirizzo,
+          'Intervento' as TipoManutenzione,
+          ei.Data as DataUltimoIntervento,
+          ei.Tipologia as DescrizioneIntervento,
+          ei.Costo as CostoUltimoIntervento,
+          COUNT(ei.ID) as NumeroInterventi
+        FROM Veicolo v
+        INNER JOIN EsegueIntervento ei ON v.ID = ei.VeicoloID
+        INNER JOIN Officina o ON ei.OfficinaID = o.ID
+        WHERE o.ID = ?
+        GROUP BY v.ID, v.Targa, v.Tipologia, v.Modello, v.Marca, v.PercentualeBatteria, v.StatoAttuale, v.ChilometraggioTotale, o.Nome, o.Indirizzo, ei.Data, ei.Tipologia, ei.Costo
+        
+        UNION
+        
+        SELECT DISTINCT
+          v.ID,
+          v.Targa,
+          v.Tipologia,
+          v.Modello,
+          v.Marca,
+          v.PercentualeBatteria,
+          v.StatoAttuale,
+          v.ChilometraggioTotale,
+          o.Nome as OfficinaNome,
+          o.Indirizzo as OfficinaIndirizzo,
+          'Revisione' as TipoManutenzione,
+          er.Data as DataUltimoIntervento,
+          'Revisione' as DescrizioneIntervento,
+          er.Costo as CostoUltimoIntervento,
+          COUNT(er.ID) as NumeroInterventi
+        FROM Veicolo v
+        INNER JOIN EsegueRevisione er ON v.ID = er.VeicoloID
+        INNER JOIN Officina o ON er.OfficinaID = o.ID
+        WHERE o.ID = ?
+        GROUP BY v.ID, v.Targa, v.Tipologia, v.Modello, v.Marca, v.PercentualeBatteria, v.StatoAttuale, v.ChilometraggioTotale, o.Nome, o.Indirizzo, er.Data, er.Costo
+        
+        ORDER BY DataUltimoIntervento DESC
+      `;
+
+      const [veicoli] = await pool.execute(query, [officinaId, officinaId]);
+      
+      return res.status(200).json({
+        success: true,
+        message: `Veicoli che hanno effettuato manutenzioni/revisioni presso l'officina ID ${officinaId} recuperati con successo`,
+        count: veicoli.length,
+        data: veicoli
+      });
+    } catch (error) {
+      console.error('Errore durante il recupero dei veicoli per officina:', error);
+      return res.status(500).json({
+        success: false,
+        message: 'Errore durante il recupero dei veicoli per officina',
         error: error.message
       });
     }

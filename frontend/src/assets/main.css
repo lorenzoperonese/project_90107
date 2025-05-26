@@ -6,6 +6,11 @@
 /* Custom styles for smooth scrolling and enhanced UX */
 html {
   scroll-behavior: smooth;
+  /* Impedisce l'overscroll su tutti i browser */
+  overscroll-behavior: none;
+  /* Mantiene il colore di sfondo del gradiente */
+  background: linear-gradient(135deg, #667eea 0%, #764ba2 100%);
+  background-attachment: fixed;
 }
 
 body {
@@ -14,12 +19,18 @@ body {
   min-height: 100vh;
   margin: 0;
   padding: 0;
+  /* Impedisce l'overscroll su mobile */
+  overscroll-behavior: none;
+  /* Mantiene il colore di sfondo anche durante l'overscroll */
+  background-attachment: fixed;
 }
 
 /* Remove default styling that constrains width */
 #app {
   width: 100%;
   min-height: 100vh;
+  /* Impedisce l'overscroll anche sull'app container */
+  overscroll-behavior: none;
 }
 
 .section-card {
@@ -84,4 +95,50 @@ body {
 
 ::-webkit-scrollbar-thumb:hover {
   background: rgba(255, 255, 255, 0.5);
+}
+
+/* Modal specific scrollbar */
+.modal-scroll::-webkit-scrollbar {
+  width: 6px;
+}
+
+.modal-scroll::-webkit-scrollbar-track {
+  background: rgba(0, 0, 0, 0.05);
+  border-radius: 6px;
+}
+
+.modal-scroll::-webkit-scrollbar-thumb {
+  background: rgba(0, 0, 0, 0.2);
+  border-radius: 6px;
+}
+
+.modal-scroll::-webkit-scrollbar-thumb:hover {
+  background: rgba(0, 0, 0, 0.3);
+}
+
+/* Smooth scrolling for modal content */
+.modal-scroll {
+  scroll-behavior: smooth;
+}
+
+/* Firefox scrollbar */
+.modal-scroll {
+  scrollbar-width: thin;
+  scrollbar-color: rgba(0, 0, 0, 0.2) rgba(0, 0, 0, 0.05);
+}
+
+/* Mobile overscroll prevention */
+@supports (-webkit-overflow-scrolling: touch) {
+  html, body {
+    overscroll-behavior-y: none;
+    -webkit-overflow-scrolling: touch;
+  }
+}
+
+/* Webkit specific overscroll prevention */
+@media screen and (-webkit-min-device-pixel-ratio: 0) {
+  html, body {
+    overscroll-behavior: none;
+    -webkit-overscroll-behavior: none;
+  }
 }

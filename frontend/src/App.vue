@@ -1,7 +1,7 @@
 <template>
   <div id="app" class="min-h-screen bg-blue-900">
     <!-- Header -->
-    <header class="text-center py-12">
+    <header class="text-center py-24">
       <h1 class="text-6xl font-bold text-white mb-4">
         BoloMove
         <span class="bg-gradient-to-r from-blue-400 to-purple-400 bg-clip-text text-transparent">Hub</span>

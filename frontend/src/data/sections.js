@@ -80,14 +80,18 @@ export const sections = [
     title: 'Manutenzioni',
     description: 'Gestione manutenzioni',
     icon: '🔧',
-    operations: ['create', 'read'],
+    operations: ['create', 'read-clienti-interventi', 'read-veicoli-officina'],
     fields: [
-      { name: 'VeicoloID', label: 'ID Veicolo', type: 'number', placeholder: '123', required: true },
-      { name: 'TipoIntervento', label: 'Tipo Intervento', type: 'text', placeholder: 'Revisione', required: true, showOnlyFor: ['create'] },
+      { name: 'VeicoloID', label: 'ID Veicolo', type: 'number', placeholder: '123', required: true, showOnlyFor: ['create', 'read-clienti-interventi'] },
+      { name: 'OfficinaID', label: 'ID Officina', type: 'number', placeholder: '1', required: true, showOnlyFor: ['create', 'read-veicoli-officina'] },
+      { name: 'TipoIntervento', label: 'Tipo Intervento', type: 'select', options: [
+        { value: 'manutenzione', label: 'Manutenzione' },
+        { value: 'revisione', label: 'Revisione' }
+      ], required: true, showOnlyFor: ['create'] },
       { name: 'DataIntervento', label: 'Data Intervento', type: 'date', required: false, showOnlyFor: ['create'] },
       { name: 'Descrizione', label: 'Descrizione', type: 'textarea', placeholder: 'Descrizione intervento...', required: false, showOnlyFor: ['create'] },
-      { name: 'Costo', label: 'Costo (€)', type: 'number', placeholder: '150.00', required: false, showOnlyFor: ['create'] },
-      { name: 'OperatoreAccountID', label: 'ID Account Operatore', type: 'number', placeholder: '456', required: false, showOnlyFor: ['create'] }
+      { name: 'Note', label: 'Note', type: 'textarea', placeholder: 'Note aggiuntive...', required: false, showOnlyFor: ['create'] },
+      { name: 'Costo', label: 'Costo (€)', type: 'number', placeholder: '150.00', required: false, showOnlyFor: ['create'] }
     ]
   },
   {
@@ -108,7 +112,7 @@ export const sections = [
     title: 'Centri di Ricarica',
     description: 'Gestione centri ricarica',
     icon: '🏢',
-    operations: ['create', 'delete', 'read-centro'],
+    operations: ['create', 'delete', 'read-centro', 'read-veicoli-caricati'],
     fields: [
       { name: 'Indirizzo', label: 'Indirizzo', type: 'text', placeholder: 'Via Bologna 123, Bologna', required: true },
       

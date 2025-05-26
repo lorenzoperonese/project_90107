@@ -1,3 +1,38 @@
+-- ============================================================================
+-- SETUP_DATABASE.SQL - Setup completo del database
+-- ============================================================================
+
+-- Disabilita i controlli delle foreign key temporaneamente
+SET FOREIGN_KEY_CHECKS = 0;
+
+-- Elimina tutte le tabelle se esistono (in ordine inverso per rispettare le dipendenze)
+DROP TABLE IF EXISTS Ricarica;
+DROP TABLE IF EXISTS EsegueIntervento;
+DROP TABLE IF EXISTS EsegueRevisione;
+DROP TABLE IF EXISTS Acquisti_Abbonamenti;
+DROP TABLE IF EXISTS Assiste;
+DROP TABLE IF EXISTS Noleggia;
+DROP TABLE IF EXISTS StazioneRicarica;
+DROP TABLE IF EXISTS Veicolo;
+DROP TABLE IF EXISTS OperatoreRicarica;
+DROP TABLE IF EXISTS AddettoCallCenter;
+DROP TABLE IF EXISTS Cliente;
+DROP TABLE IF EXISTS CentroRicarica;
+DROP TABLE IF EXISTS Abbonamento;
+DROP TABLE IF EXISTS Officina;
+DROP TABLE IF EXISTS Tariffa;
+DROP TABLE IF EXISTS Patente;
+DROP TABLE IF EXISTS Documento;
+DROP TABLE IF EXISTS Account;
+DROP TABLE IF EXISTS MetodoPagamento;
+
+-- Riabilita i controlli delle foreign key
+SET FOREIGN_KEY_CHECKS = 1;
+
+-- ============================================================================
+-- CREAZIONE TABELLE
+-- ============================================================================
+
 CREATE TABLE MetodoPagamento (
     NumeroCarta VARCHAR(25) PRIMARY KEY, 
     Intestatario VARCHAR(255) NOT NULL,
@@ -16,7 +51,6 @@ CREATE TABLE Account (
     DataRegistrazione DATETIME NOT NULL DEFAULT CURRENT_TIMESTAMP,
     FOREIGN KEY (MetodoPagamentoPreferito) REFERENCES MetodoPagamento(NumeroCarta) ON DELETE SET NULL ON UPDATE CASCADE
 );
-
 
 CREATE TABLE Documento (
     Numero VARCHAR(50) PRIMARY KEY,
@@ -104,7 +138,18 @@ CREATE TABLE Veicolo (
     StatoAttuale ENUM('disponibile', 'in_uso', 'in_ricarica', 'fuori_servizio', 'eliminato') NOT NULL DEFAULT 'disponibile',
     ChilometraggioTotale INT NOT NULL DEFAULT 0 CHECK (ChilometraggioTotale >= 0),
     Tipologia ENUM('auto', 'scooter', 'bicicletta', 'monopattino') NOT NULL,
-    FOREIGN KEY (Tipologia) REFERENCES Tariffa(CategoriaVeicolo) ON DELETE RESTRICT ON UPDATE RESTRICT
+    FOREIGN KEY (Tipologia) REFERENCES Tariffa(CategoriaVeicolo) ON DELETE RESTRICT ON UPDATE RESTRICT,
+    CONSTRAINT CHK_tipo CHECK 
+    (
+        Tipologia = 'monopattino' OR 
+        Tipologia = 'bicicletta' OR 
+        (
+            Tipologia IN ('auto', 'scooter') AND
+            Targa IS NOT NULL AND 
+            ScadenzaRevisione IS NOT NULL AND
+            DataImmatricolazione IS NOT NULL
+        )
+    )
 );
 
 CREATE TABLE StazioneRicarica (
@@ -115,7 +160,6 @@ CREATE TABLE StazioneRicarica (
     CentroRicaricaIndirizzo VARCHAR(255) NULL,
     FOREIGN KEY (CentroRicaricaIndirizzo) REFERENCES CentroRicarica(Indirizzo) ON DELETE SET NULL ON UPDATE CASCADE
 );
-
 
 CREATE TABLE Noleggia (
     ID INT AUTO_INCREMENT PRIMARY KEY,
@@ -189,4 +233,6 @@ CREATE TABLE Ricarica (
     FOREIGN KEY (OperatoreAccountID) REFERENCES OperatoreRicarica(AccountID) ON DELETE RESTRICT ON UPDATE CASCADE,
     FOREIGN KEY (VeicoloID) REFERENCES Veicolo(ID) ON DELETE RESTRICT ON UPDATE CASCADE,
     FOREIGN KEY (StazioneRicaricaID) REFERENCES StazioneRicarica(ID) ON DELETE RESTRICT ON UPDATE CASCADE
-); 
+);
+
+COMMIT; 

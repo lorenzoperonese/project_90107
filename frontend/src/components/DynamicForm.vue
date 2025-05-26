@@ -1,9 +1,13 @@
 <template>
-  <div :class="backgroundClass">
-    <div class="p-6 h-full flex flex-col">
-      <form @submit.prevent="$emit('form-submit')" class="flex-1 flex flex-col">
-        <!-- Form Content -->
-        <div class="flex-1 overflow-y-auto pr-2">
+  <div :class="backgroundClass" class="flex flex-col h-full rounded-b-3xl overflow-hidden">
+    <form @submit.prevent="$emit('form-submit')" class="flex flex-col h-full">
+      <!-- Form Content - Scrollable Area -->
+      <div 
+        ref="scrollContainer"
+        @scroll="handleScroll"
+        class="flex-1 overflow-y-auto p-6 pb-0 modal-scroll"
+      >
+        <div class="space-y-4">
           <!-- READ Operation -->
           <div v-if="isReadOperation" class="space-y-4">
             <div class="grid grid-cols-1 md:grid-cols-2 gap-4">
@@ -72,9 +76,18 @@
             </div>
           </div>
         </div>
+        <!-- Padding bottom per evitare che l'ultimo elemento sia troppo vicino al bordo -->
+        <div class="h-4"></div>
+      </div>
 
-        <!-- Action Buttons -->
-        <div class="flex gap-4 pt-6 border-t border-gray-200 mt-6">
+      <!-- Action Buttons - Always Visible -->
+      <div 
+        :class="[
+          'flex-shrink-0 p-6 pt-4 border-t border-gray-200 bg-white transition-shadow duration-200 rounded-b-3xl',
+          showTopShadow ? 'shadow-[0_-4px_6px_-1px_rgba(0,0,0,0.1)]' : ''
+        ]"
+      >
+        <div class="flex gap-4">
           <button type="submit" :class="submitButtonClass">
             {{ buttonText }}
           </button>
@@ -82,13 +95,13 @@
             Annulla
           </button>
         </div>
-      </form>
-    </div>
+      </div>
+    </form>
   </div>
 </template>
 
 <script setup>
-import { computed } from 'vue'
+import { computed, ref, onMounted, nextTick, watch } from 'vue'
 import FormField from './FormField.vue'
 import { useOperations } from '../composables/useOperations.js'
 
@@ -101,6 +114,30 @@ const props = defineProps({
 const emit = defineEmits(['form-submit', 'cancel', 'update-field'])
 
 const operations = useOperations()
+const scrollContainer = ref(null)
+const showTopShadow = ref(false)
+
+// Gestione dello scroll per mostrare l'ombra
+const handleScroll = () => {
+  if (scrollContainer.value) {
+    const { scrollTop, scrollHeight, clientHeight } = scrollContainer.value
+    showTopShadow.value = scrollTop > 10 && scrollHeight > clientHeight
+  }
+}
+
+// Controlla se c'è contenuto scrollabile al mount e quando cambia l'operazione
+onMounted(() => {
+  nextTick(() => {
+    handleScroll()
+  })
+})
+
+// Ricontrolla quando cambia l'operazione
+watch(() => props.operation, () => {
+  nextTick(() => {
+    handleScroll()
+  })
+})
 
 // Computed properties
 const isReadOperation = computed(() => props.operation?.startsWith('read'))
@@ -123,7 +160,7 @@ const deleteField = computed(() => {
 const buttonText = computed(() => operations.getOperationButtonText(props.operation))
 
 const backgroundClass = computed(() => {
-  const baseClass = 'flex-1 overflow-y-auto transition-all duration-300'
+  const baseClass = 'transition-all duration-300'
   switch (props.operation) {
     case 'create': return `${baseClass} bg-green-50`
     case 'delete': return `${baseClass} bg-red-50`

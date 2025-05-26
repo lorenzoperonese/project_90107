@@ -11,6 +11,7 @@ router.delete('/:indirizzo', centriRicaricaController.deleteCentroRicarica);
 // Operazione 6.c - Ricerca1: visualizzazione centro per zona geografica
 router.get('/', centriRicaricaController.getCentri);
 
-
+// Operazione 6.d - Ricerca2: visualizzazione veicoli caricati in un centro di ricarica
+router.get('/:indirizzo/veicoli', centriRicaricaController.getVehiclesByChargingCenter);
 
 module.exports = router; 
