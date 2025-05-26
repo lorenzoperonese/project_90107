@@ -18,13 +18,13 @@ BEGIN
     DECLARE tipoVeicolo ENUM('auto', 'scooter', 'bicicletta', 'monopattino');
     DECLARE autoAbilitata BOOLEAN;
     DECLARE Scadenza DATE;
-    DECLARE patenteNumero VARCHAR(50);
+    DECLARE p VARCHAR(50);
 
     SELECT Tipologia INTO tipoVeicolo FROM Veicolo WHERE ID = NEW.VeicoloID;
-    SELECT PatenteNumero INTO patenteNumero FROM Cliente WHERE AccountID = NEW.ClienteAccountID;
+    SELECT PatenteNumero INTO p FROM Cliente WHERE AccountID = NEW.ClienteAccountID;
 
     IF tipoVeicolo IN ('auto', 'scooter') THEN
-        IF patenteNumero IS NULL THEN
+        IF p IS NULL THEN
             SIGNAL SQLSTATE '45000' SET MESSAGE_TEXT = 'Patente mancante';
         ELSE
             SELECT AutoAbilitata, Scadenza INTO autoAbilitata, Scadenza
