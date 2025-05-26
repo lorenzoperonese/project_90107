@@ -173,29 +173,26 @@ const manutenzioniController = {
 
       const query = `
         SELECT DISTINCT
-          c.AccountID,
-          c.Nome,
-          c.Cognome,
-          acc.Email,
-          n.DataInizio as UltimoNoleggio,
-          n.DataFine,
-          v.Targa,
-          v.Modello,
-          v.Marca,
-          'Intervento' as TipoManutenzione,
-          ei.Data as DataIntervento,
-          ei.Tipologia as DescrizioneIntervento,
-          o.Nome as OfficinaNome
-        FROM Cliente c
-        INNER JOIN Account acc ON c.AccountID = acc.ID
-        INNER JOIN Noleggia n ON c.AccountID = n.ClienteAccountID
+            cai.ID AS AccountID,
+            cai.Nome,
+            cai.Cognome,
+            cai.Email,
+            n.DataInizio AS UltimoNoleggio,
+            n.DataFine,
+            v.Targa,
+            v.Modello,
+            v.Marca,
+            ei.Data AS DataIntervento,
+            ei.Tipologia AS DescrizioneIntervento,
+            o.Nome AS OfficinaNome
+        FROM Cliente_Account_Info cai
+        INNER JOIN Noleggia n ON cai.ID = n.ClienteAccountID
         INNER JOIN Veicolo v ON n.VeicoloID = v.ID
         INNER JOIN EsegueIntervento ei ON v.ID = ei.VeicoloID
         INNER JOIN Officina o ON ei.OfficinaID = o.ID
-        WHERE v.ID = ?
-        
+        WHERE ei.ID = ? AND n.DataFine < ei.Data
         ORDER BY UltimoNoleggio DESC
-        LIMIT 5
+        LIMIT 5;
       `;
 
       const [clienti] = await pool.execute(query, [veicoloId, veicoloId]);
@@ -273,6 +270,63 @@ const manutenzioniController = {
       return res.status(500).json({
         success: false,
         message: 'Errore durante il recupero dell\'andamento mensile dei costi',
+        error: error.message
+      });
+    }
+  },
+
+  // Visualizzazione dei noleggi effettuati prima di un intervento
+  getNoleggiBeforeIntervento: async (req, res) => {
+    try {
+      const { interventoId } = req.params;
+      
+      // Verifica che l'ID sia valido
+      if (!interventoId || isNaN(interventoId)) {
+        return res.status(400).json({
+          success: false,
+          message: 'ID Intervento non valido'
+        });
+      }
+
+      // Query per trovare i noleggi precedenti all'intervento
+      const query = `
+        SELECT DISTINCT
+          n.ID as NoleggiID,
+          n.DataInizio,
+          n.DataFine,
+          n.ChilometriPercorsi,
+          n.DurataMinuti,
+          c.AccountID as ClienteID,
+          c.Nome as ClienteNome,
+          c.Cognome as ClienteCognome,
+          v.ID as VeicoloID,
+          v.Targa,
+          v.Modello,
+          v.Marca,
+          ei.Data as DataIntervento,
+          ei.Tipologia as TipologiaIntervento
+        FROM Noleggia n
+        INNER JOIN Cliente c ON n.ClienteAccountID = c.AccountID
+        INNER JOIN Veicolo v ON n.VeicoloID = v.ID
+        INNER JOIN EsegueIntervento ei ON v.ID = ei.VeicoloID
+        WHERE ei.ID = ?
+          AND n.DataFine < ei.Data
+        ORDER BY n.DataFine DESC
+      `;
+      
+      const [noleggi] = await pool.execute(query, [interventoId]);
+      
+      return res.status(200).json({
+        success: true,
+        message: 'Noleggi prima dell\'intervento recuperati con successo',
+        count: noleggi.length,
+        data: noleggi
+      });
+    } catch (error) {
+      console.error('Errore durante il recupero dei noleggi prima dell\'intervento:', error);
+      return res.status(500).json({
+        success: false,
+        message: 'Errore durante il recupero dei noleggi prima dell\'intervento',
         error: error.message
       });
     }

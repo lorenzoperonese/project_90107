@@ -9,9 +9,9 @@ router.post('/', stazioniRicaricaController.insertStazioneRicarica);
 router.put('/:id/stato', stazioniRicaricaController.updateStatoStazione);
 
 // Op 7.c - Visualizzazione energia totale erogata da una stazione
-router.get('/:id/energia-totale', stazioniRicaricaController.getEnergiaTotale);
+router.get('/energia-totale', stazioniRicaricaController.getEnergiaTotale);
 
 // Op 7.d - Visualizzazione durata media delle sessioni per stazione
-router.get('/:id/durata-media', stazioniRicaricaController.getDurataMediaSessioni);
+router.get('/durata-media', stazioniRicaricaController.getDurataMediaSessioni);
 
 module.exports = router; 

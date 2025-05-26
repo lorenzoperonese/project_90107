@@ -94,20 +94,17 @@ const stazioniRicaricaController = {
   // Op 7.c - Visualizzazione delle stazioni ordinate per energia totale erogata
   getEnergiaTotale: async (req, res) => {
     try {
-      const { id } = req.params;
-
       const query = `
         SELECT 
-          sr.ID,
-          sr.TipologiaPresa,
-          SUM(r.KWhCaricati) AS EnergiaTotaleKWh
+            sr.ID,
+            SUM(r.KWhCaricati) AS EnergiaTotaleKWh
         FROM StazioneRicarica sr
         JOIN Ricarica r ON sr.ID = r.StazioneRicaricaID
-        WHERE sr.ID = ?
-        GROUP BY sr.ID, sr.TipologiaPresa
+        GROUP BY sr.ID
+        ORDER BY EnergiaTotaleKWh DESC;
       `;
       
-      const [result] = await pool.execute(query, [id]);
+      const [result] = await pool.execute(query);
       
       if (result.length === 0) {
         return res.status(404).json({
@@ -119,7 +116,7 @@ const stazioniRicaricaController = {
       return res.status(200).json({
         success: true,
         message: 'Energia totale erogata recuperata con successo',
-        data: result[0]
+        data: result
       });
     } catch (error) {
       console.error('Errore durante il recupero dell\'energia totale erogata:', error);
@@ -134,20 +131,18 @@ const stazioniRicaricaController = {
   // Op 7.d - Visualizzazione della durata media delle sessioni di ricarica per stazione
   getDurataMediaSessioni: async (req, res) => {
     try {
-      const { id } = req.params;
-
       const query = `
         SELECT 
-          sr.ID,
-          sr.TipologiaPresa,
-          AVG(TIMESTAMPDIFF(MINUTE, r.DataInizio, r.DataFine)) AS DurataMediaMinuti
+            sr.ID,
+            AVG(TIMESTAMPDIFF(MINUTE, r.DataInizio, r.DataFine)) AS DurataMediaMinuti
         FROM StazioneRicarica sr
         JOIN Ricarica r ON sr.ID = r.StazioneRicaricaID
-        WHERE sr.ID = ? AND r.DataFine IS NOT NULL
-        GROUP BY sr.ID, sr.TipologiaPresa
+        WHERE r.DataFine IS NOT NULL
+        GROUP BY sr.ID
+        ORDER BY DurataMediaMinuti DESC;
       `;
       
-      const [result] = await pool.execute(query, [id]);
+      const [result] = await pool.execute(query);
       
       if (result.length === 0) {
         return res.status(404).json({
@@ -159,7 +154,7 @@ const stazioniRicaricaController = {
       return res.status(200).json({
         success: true,
         message: 'Durata media delle sessioni recuperata con successo',
-        data: result[0]
+        data: result
       });
     } catch (error) {
       console.error('Errore durante il recupero della durata media delle sessioni:', error);

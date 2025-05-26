@@ -9,6 +9,6 @@ router.post('/', centriRicaricaController.insertCentroRicarica);
 router.get('/piu-attivi', centriRicaricaController.getCentriPiuAttivi);
 
 // Op 6.b: Visualizzazione energia totale ricaricata per centro di ricarica
-router.get('/:id/energia-totale', centriRicaricaController.getEnergiaTotale);
+router.get('/energia-totale', centriRicaricaController.getEnergiaTotale);
 
 module.exports = router; 

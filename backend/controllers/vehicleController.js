@@ -268,9 +268,9 @@ const vehicleController = {
         FROM
             Veicolo v
         JOIN
-            InterventoManutenzione m ON v.ID = m.VeicoloID
+            EsegueIntervento m ON v.ID = m.VeicoloID
         WHERE
-            m.DataIntervento >= DATE_SUB(CURDATE(), INTERVAL 1 YEAR)
+            m.Data >= DATE_SUB(CURDATE(), INTERVAL 1 YEAR)
         GROUP BY
             v.ID, v.Targa, v.Modello, v.Marca
         ORDER BY

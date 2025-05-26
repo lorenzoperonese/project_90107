@@ -107,7 +107,8 @@ const submitForm = async () => {
   if (result.success) {
     // Se è un'operazione di ricerca/lettura, salva i risultati
     if (selectedOperation.value?.startsWith('read')) {
-      searchResults.value = result.data
+      // Usa result.data.data invece di result.data per accedere ai dati effettivi
+      searchResults.value = result.data.data
     } else {
       // Per altre operazioni, mostra il messaggio di successo e chiudi il form
       showSuccess.value = true

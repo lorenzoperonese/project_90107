@@ -38,21 +38,18 @@ const centriRicaricaController = {
   // Op 6.b: Visualizzazione energia totale ricaricata per centro di ricarica
   getEnergiaTotale: async (req, res) => {
     try {
-      const { id } = req.params;
-
       const query = `
         SELECT 
-          cr.ID,
-          cr.Indirizzo,
-          SUM(r.KWhCaricati) AS EnergiaTotale
+            cr.ID,
+            SUM(r.KWhCaricati) AS EnergiaTotale
         FROM CentroRicarica cr
         JOIN StazioneRicarica sr ON cr.ID = sr.CentroRicarica
         JOIN Ricarica r ON sr.ID = r.StazioneRicaricaID
-        WHERE cr.ID = ?
-        GROUP BY cr.ID, cr.Indirizzo
+        GROUP BY cr.ID
+        ORDER BY EnergiaTotale DESC;
       `;
       
-      const [result] = await pool.execute(query, [id]);
+      const [result] = await pool.execute(query);
       
       if (result.length === 0) {
         return res.status(404).json({
@@ -64,7 +61,7 @@ const centriRicaricaController = {
       return res.status(200).json({
         success: true,
         message: 'Energia totale ricaricata recuperata con successo',
-        data: result[0]
+        data: result
       });
     } catch (error) {
       console.error('Errore durante il recupero dell\'energia totale:', error);

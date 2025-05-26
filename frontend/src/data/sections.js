@@ -82,7 +82,7 @@ export const sections = [
     icon: '🔧',
     operations: ['create', 'read-clienti-interventi', 'read-expensive-interventions', 'read-monthly-costs'],
     fields: [
-      { name: 'VeicoloID', label: 'ID Veicolo', type: 'number', placeholder: '123', required: true, showOnlyFor: ['create', 'read-clienti-interventi'] },
+      { name: 'VeicoloID', label: 'ID Veicolo', type: 'number', placeholder: '123', required: true, showOnlyFor: ['create'] },
       { name: 'OfficinaID', label: 'ID Officina', type: 'number', placeholder: '1', required: true, showOnlyFor: ['create'] },
       { name: 'TipoIntervento', label: 'Tipo Intervento', type: 'select', options: [
         { value: 'manutenzione', label: 'Manutenzione' },

@@ -305,6 +305,37 @@ const formatValue = (value) => {
   if (value === null || value === undefined) return '-'
   if (typeof value === 'boolean') return value ? 'Sì' : 'No'
   if (value instanceof Date) return value.toLocaleString('it-IT')
+  
+  // Gestione degli oggetti POINT SQL per le coordinate GPS
+  if (typeof value === 'object' && value !== null) {
+    // Se l'oggetto ha proprietà x e y (tipiche di un POINT SQL)
+    if ('x' in value && 'y' in value) {
+      return `${value.y.toFixed(6)}, ${value.x.toFixed(6)}`  // Formato lat, lng
+    }
+    
+    // Se è un oggetto punto in formato GeoJSON
+    if (value.type === 'Point' && Array.isArray(value.coordinates)) {
+      return `${value.coordinates[1].toFixed(6)}, ${value.coordinates[0].toFixed(6)}`
+    }
+  }
+  
+  // Verifica se è una stringa in formato POINT(lon lat)
+  if (typeof value === 'string' && value.toUpperCase().startsWith('POINT(')) {
+    try {
+      // Estrai le coordinate da POINT(lon lat)
+      const coords = value.substring(6, value.length - 1).split(' ');
+      if (coords.length === 2) {
+        const lon = parseFloat(coords[0]);
+        const lat = parseFloat(coords[1]);
+        if (!isNaN(lon) && !isNaN(lat)) {
+          return `${lat.toFixed(6)}, ${lon.toFixed(6)}`;
+        }
+      }
+    } catch (e) {
+      console.error("Errore nel parsing del POINT:", e);
+    }
+  }
+  
   return value.toString()
 }
 

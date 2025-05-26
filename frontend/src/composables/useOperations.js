@@ -11,7 +11,7 @@ const operationDefinitions = {
   'read-operator': { id: 'read-operator', name: 'Storico Operatore', icon: '👤', color: 'bg-blue-500' },
   'read-centro': { id: 'read-centro', name: 'Ricerca', icon: '🗺️', color: 'bg-blue-500' },
   'read-veicoli-caricati': { id: 'read-veicoli-caricati', name: 'Veicoli Caricati', icon: '🚗⚡', color: 'bg-blue-500' },
-  'read-clienti-interventi': { id: 'read-clienti-interventi', name: 'Clienti pre Intervento', icon: '👥🔧', color: 'bg-blue-500' },
+  'read-clienti-interventi': { id: 'read-clienti-interventi', name: 'Noleggi Prima dell\'Intervento', icon: '👥🔧', color: 'bg-blue-500' },
   'read-veicoli-officina': { id: 'read-veicoli-officina', name: 'Veicoli per Officina', icon: '🚗🔧', color: 'bg-blue-500' },
   'read-servizi': { id: 'read-servizi', name: 'Ricerca per Servizi', icon: '🛎️', color: 'bg-blue-500' },
   'read-most-rented': { id: 'read-most-rented', name: 'Più Noleggiati', icon: '📊', color: 'bg-blue-500' },
@@ -44,7 +44,7 @@ const buttonTexts = {
   'read-operator': 'Storico Operatore',
   'read-centro': 'Cerca Centro',
   'read-veicoli-caricati': 'Cerca Veicoli Caricati',
-  'read-clienti-interventi': 'Cerca Clienti pre Intervento',
+  'read-clienti-interventi': 'Cerca Noleggi Prima dell\'Intervento',
   'read-veicoli-officina': 'Cerca Veicoli per Officina',
   'read-servizi': 'Cerca per Servizi'
 }
@@ -87,16 +87,7 @@ export function useOperations() {
           ]
         }],
         'read-most-maintenance': [{}],
-        'read-avg-duration': [{ name: 'Tipologia', 
-          label: 'Tipologia', 
-          type: 'select', 
-          options: [
-            { value: 'auto', label: 'Auto Elettrica' },
-            { value: 'scooter', label: 'Scooter Elettrico' },
-            { value: 'bicicletta', label: 'Bicicletta Elettrica' },
-            { value: 'monopattino', label: 'Monopattino Elettrico' }
-          ]
-        }],
+        'read-avg-duration': [{}],
         'read-km-traveled': [{}],
         'read-monthly-trend': [{}],
         'read-frequent': [{}],
@@ -113,7 +104,7 @@ export function useOperations() {
         'read-operator': [{ name: 'OperatoreAccountID', label: 'ID Operatore', type: 'number', placeholder: '456' }],
         'read-centro': [{ }],
         'read-veicoli-caricati': [{ name: 'Indirizzo', label: 'Indirizzo Centro Ricarica', type: 'text', placeholder: 'Via Bologna 123, Bologna' }],
-        'read-clienti-interventi': [{ name: 'VeicoloID', label: 'ID Veicolo', type: 'number', placeholder: '123' }],
+        'read-clienti-interventi': [{ name: 'InterventoID', label: 'ID Intervento', type: 'number', placeholder: '123' }],
         'read-veicoli-officina': [{ name: 'OfficinaID', label: 'ID Officina', type: 'number', placeholder: '1' }],
         'read-servizi': [{ name: 'Servizio', label: 'Servizio Accessorio', type: 'text', placeholder: 'Bar' }]
       }

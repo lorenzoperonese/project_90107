@@ -294,8 +294,7 @@ export function useApi() {
         })
 
       case 'read-total-energy':
-        if (!formData.ID) throw new Error('ID Centro richiesto per la ricerca')
-        return fetch(`${baseUrl}/${formData.ID}/energia-totale`, {
+        return fetch(`${baseUrl}/energia-totale`, {
           method: 'GET',
           headers: { 'Content-Type': 'application/json' }
         })
@@ -345,15 +344,13 @@ export function useApi() {
         })
 
       case 'read-total-energy':
-        if (!formData.ID) throw new Error('ID Stazione richiesto per la ricerca')
-        return fetch(`${baseUrl}/${formData.ID}/energia-totale`, {
+        return fetch(`${baseUrl}/energia-totale`, {
           method: 'GET',
           headers: { 'Content-Type': 'application/json' }
         })
 
       case 'read-avg-session-duration':
-        if (!formData.ID) throw new Error('ID Stazione richiesto per la ricerca')
-        return fetch(`${baseUrl}/${formData.ID}/durata-media`, {
+        return fetch(`${baseUrl}/durata-media`, {
           method: 'GET',
           headers: { 'Content-Type': 'application/json' }
         })
