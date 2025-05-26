@@ -28,7 +28,7 @@ export const sections = [
       { name: 'DataImmatricolazione', label: 'Data Immatricolazione', type: 'date', required: true, showOnlyFor: ['create'], requiresVehicleType: ['auto', 'scooter'] },
       { name: 'PercentualeBatteria', label: 'Percentuale Batteria (%)', type: 'number', placeholder: '85', required: true, showOnlyFor: ['create', 'update'] },
       { name: 'gpsQuery', label: 'Coordinate GPS', type: 'text', placeholder: '44.4949, 11.3426', required: true, showOnlyFor: ['create', 'update'] },
-      { name: 'StatoAttuale', label: 'Stato Attuale', type: 'select', options: ['disponibile', 'in_uso', 'in_ricarica', 'fuori_servizio'], required: true, showOnlyFor: ['create', 'update'] },
+      { name: 'Stato', label: 'Stato Attuale', type: 'select', options: ['disponibile', 'in_uso', 'in_ricarica', 'fuori_servizio'], required: true, showOnlyFor: ['create', 'update'] },
       { name: 'ChilometraggioTotale', label: 'Chilometraggio Totale (km)', type: 'number', placeholder: '15000', required: true, showOnlyFor: ['create', 'update'], requiresVehicleType: ['auto', 'scooter'] }
     ]
   },
@@ -127,7 +127,7 @@ export const sections = [
       { name: 'ID', label: 'ID Stazione', type: 'number', placeholder: '1', required: false, showOnlyFor: ['update', 'delete'] },
       { name: 'TipologiaPresa', label: 'Tipologia Presa', type: 'text', placeholder: 'Type 2', required: true, showOnlyFor: ['create'] },
       { name: 'GPS', label: 'Coordinate GPS', type: 'text', placeholder: '44.4949, 11.3426', required: true, showOnlyFor: ['create'] },
-      { name: 'StatoCorrente', label: 'Stato Corrente', type: 'select', options: ['libera', 'occupata', 'in_manutenzione', 'fuori_servizio'], required: true },
+      { name: 'Stato', label: 'Stato Corrente', type: 'select', options: ['libera', 'occupata', 'in_manutenzione', 'fuori_servizio'], required: true },
       { name: 'CentroRicaricaIndirizzo', label: 'Indirizzo Centro Ricarica', type: 'text', placeholder: 'Via Bologna 123, Bologna', required: false, showOnlyFor: ['create'] },
       
     ]

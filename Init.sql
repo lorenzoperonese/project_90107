@@ -52,7 +52,7 @@ INSERT INTO CentroRicarica (Indirizzo, NumeroStazioniDisponibili) VALUES
 ('Via Chiaia 34, Napoli', 9);
 
 -- Inserimento di alcune stazioni di ricarica collegate ai centri
-INSERT INTO StazioneRicarica (TipologiaPresa, GPS, StatoCorrente, CentroRicaricaIndirizzo) VALUES
+INSERT INTO StazioneRicarica (TipologiaPresa, GPS, Stato, CentroRicaricaIndirizzo) VALUES
 ('Type 2', ST_PointFromText('POINT(11.3426 44.4949)'), 'libera', 'Via Bologna 123, Bologna'),
 ('CCS Combo', ST_PointFromText('POINT(11.3430 44.4955)'), 'libera', 'Via Bologna 123, Bologna'),
 ('CHAdeMO', ST_PointFromText('POINT(9.1900 45.4642)'), 'libera', 'Piazza Duomo 45, Milano'),
@@ -60,12 +60,12 @@ INSERT INTO StazioneRicarica (TipologiaPresa, GPS, StatoCorrente, CentroRicarica
 ('CCS Combo', ST_PointFromText('POINT(12.4964 41.9028)'), 'libera', 'Via del Corso 78, Roma');
 
 -- Inserimento di alcuni veicoli di esempio
-INSERT INTO Veicolo (Targa, Tipologia, Modello, Marca, PercentualeBatteria, GPS, StatoAttuale, ScadenzaRevisione, NumeroPolizzaAssicurativa, NumeroPosti, DataImmatricolazione, ChilometraggioTotale) VALUES
+INSERT INTO Veicolo (Targa, Tipologia, Modello, Marca, PercentualeBatteria, GPS, Stato, ScadenzaRevisione, NumeroPolizzaAssicurativa, NumeroPosti, DataImmatricolazione, ChilometraggioTotale) VALUES
 ('AB123CD', 'auto', 'Model 3', 'Tesla', 85, ST_PointFromText('POINT(11.3426 44.4949)'), 'disponibile', '2025-06-15', 'POL123456789', 5, '2022-03-10', 15000),
 ('EF456GH', 'scooter', 'Vespa Elettrica', 'Piaggio', 92, ST_PointFromText('POINT(9.1900 45.4642)'), 'disponibile', '2025-08-20', 'POL987654321', 2, '2023-01-15', 8500),
 ('IJ789KL', 'auto', 'e-Golf', 'Volkswagen', 78, ST_PointFromText('POINT(12.4964 41.9028)'), 'in_ricarica', '2025-12-10', 'POL456789123', 5, '2021-11-05', 22000);
 
-INSERT INTO Veicolo (Tipologia, Modello, Marca, PercentualeBatteria, GPS, StatoAttuale, NumeroPolizzaAssicurativa) VALUES
+INSERT INTO Veicolo (Tipologia, Modello, Marca, PercentualeBatteria, GPS, Stato, NumeroPolizzaAssicurativa) VALUES
 ('bicicletta', 'E-Bike City', 'Bianchi', 65, ST_PointFromText('POINT(7.6869 45.0703)'), 'disponibile', 'POL111222333'),
 ('monopattino', 'Mi Electric Scooter', 'Xiaomi', 88, ST_PointFromText('POINT(14.2681 40.8518)'), 'disponibile', 'POL444555666');
 

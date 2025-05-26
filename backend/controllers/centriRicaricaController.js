@@ -114,7 +114,7 @@ const centriRicaricaController = {
           v.Modello,
           v.Marca,
           v.PercentualeBatteria,
-          v.StatoAttuale,
+          v.Stato,
           v.ChilometraggioTotale,
           COUNT(r.ID) as NumeroRicariche,
           MAX(r.DataInizio) as UltimaRicarica
@@ -123,7 +123,7 @@ const centriRicaricaController = {
         INNER JOIN StazioneRicarica sr ON r.StazioneRicaricaID = sr.ID
         INNER JOIN CentroRicarica cr ON sr.CentroRicaricaIndirizzo = cr.Indirizzo
         WHERE cr.Indirizzo = ?
-        GROUP BY v.ID, v.Targa, v.Tipologia, v.Modello, v.Marca, v.PercentualeBatteria, v.StatoAttuale, v.ChilometraggioTotale
+        GROUP BY v.ID, v.Targa, v.Tipologia, v.Modello, v.Marca, v.PercentualeBatteria, v.Stato, v.ChilometraggioTotale
         ORDER BY UltimaRicarica DESC, NumeroRicariche DESC
       `;
 

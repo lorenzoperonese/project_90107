@@ -254,7 +254,7 @@ const manutenzioniController = {
           v.Modello,
           v.Marca,
           v.PercentualeBatteria,
-          v.StatoAttuale,
+          v.Stato,
           v.ChilometraggioTotale,
           o.Nome as OfficinaNome,
           o.Indirizzo as OfficinaIndirizzo,
@@ -267,7 +267,7 @@ const manutenzioniController = {
         INNER JOIN EsegueIntervento ei ON v.ID = ei.VeicoloID
         INNER JOIN Officina o ON ei.OfficinaID = o.ID
         WHERE o.ID = ?
-        GROUP BY v.ID, v.Targa, v.Tipologia, v.Modello, v.Marca, v.PercentualeBatteria, v.StatoAttuale, v.ChilometraggioTotale, o.Nome, o.Indirizzo, ei.Data, ei.Tipologia, ei.Costo
+        GROUP BY v.ID, v.Targa, v.Tipologia, v.Modello, v.Marca, v.PercentualeBatteria, v.Stato, v.ChilometraggioTotale, o.Nome, o.Indirizzo, ei.Data, ei.Tipologia, ei.Costo
         
         UNION
         
@@ -278,7 +278,7 @@ const manutenzioniController = {
           v.Modello,
           v.Marca,
           v.PercentualeBatteria,
-          v.StatoAttuale,
+          v.Stato,
           v.ChilometraggioTotale,
           o.Nome as OfficinaNome,
           o.Indirizzo as OfficinaIndirizzo,
@@ -291,7 +291,7 @@ const manutenzioniController = {
         INNER JOIN EsegueRevisione er ON v.ID = er.VeicoloID
         INNER JOIN Officina o ON er.OfficinaID = o.ID
         WHERE o.ID = ?
-        GROUP BY v.ID, v.Targa, v.Tipologia, v.Modello, v.Marca, v.PercentualeBatteria, v.StatoAttuale, v.ChilometraggioTotale, o.Nome, o.Indirizzo, er.Data, er.Costo
+        GROUP BY v.ID, v.Targa, v.Tipologia, v.Modello, v.Marca, v.PercentualeBatteria, v.Stato, v.ChilometraggioTotale, o.Nome, o.Indirizzo, er.Data, er.Costo
         
         ORDER BY DataUltimoIntervento DESC
       `;

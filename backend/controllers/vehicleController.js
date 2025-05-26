@@ -16,7 +16,7 @@ const vehicleController = {
         DataImmatricolazione,
         PercentualeBatteria,
         gpsQuery,
-        StatoAttuale,
+        Stato,
         ChilometraggioTotale,
       } = req.body;
       
@@ -25,8 +25,8 @@ const vehicleController = {
       const gpsFormatted = parseGpsString(gpsQuery);
       
       // Campi base sempre presenti
-      const baseFields = ['Tipologia', 'Modello', 'Marca', 'PercentualeBatteria', 'GPS', 'StatoAttuale'];
-      const baseValues = [Tipologia, Modello, Marca, PercentualeBatteria, gpsFormatted, StatoAttuale];
+      const baseFields = ['Tipologia', 'Modello', 'Marca', 'PercentualeBatteria', 'GPS', 'Stato'];
+      const baseValues = [Tipologia, Modello, Marca, PercentualeBatteria, gpsFormatted, Stato];
       
       // Campi condizionali per auto e scooter
       const conditionalFields = [];
@@ -101,7 +101,7 @@ const vehicleController = {
       const {
         PercentualeBatteria,
         gpsQuery,
-        StatoAttuale,
+        Stato,
         ChilometraggioTotale,
       } = req.body;
 
@@ -112,13 +112,13 @@ const vehicleController = {
       const values = [
         PercentualeBatteria,
         gpsFormatted,
-        StatoAttuale,
+        Stato,
         ChilometraggioTotale,
         id
       ];
 
       console.log('Valori per l\'aggiornamento:', values);
-      const query = 'UPDATE Veicolo SET PercentualeBatteria = ?, GPS = ST_PointFromText(?), StatoAttuale = ?, ChilometraggioTotale = ? WHERE ID = ?';
+      const query = 'UPDATE Veicolo SET PercentualeBatteria = ?, GPS = ST_PointFromText(?), Stato = ?, ChilometraggioTotale = ? WHERE ID = ?';
 
       const [result] = await pool.execute(query, values);
       if (result.affectedRows === 0) {
@@ -133,7 +133,7 @@ const vehicleController = {
         data: {
           id: id,
           percentualeBatteria: PercentualeBatteria,
-          statoAttuale: StatoAttuale,
+          Stato: Stato,
           chilometraggioTotale: ChilometraggioTotale
         }
       });
@@ -154,7 +154,7 @@ const vehicleController = {
       const { id } = req.params;
       console.log('ID ricevuto per la cancellazione:', id);
       
-      const query = 'UPDATE Veicolo SET StatoAttuale = "eliminato" WHERE ID = ?';
+      const query = 'UPDATE Veicolo SET Stato = "eliminato" WHERE ID = ?';
       const [result] = await pool.execute(query, [id]);
       
       if (result.affectedRows === 0) {
@@ -223,7 +223,7 @@ const vehicleController = {
       const query = `
         SELECT *
         FROM Veicolo 
-        WHERE Tipologia = ? AND PercentualeBatteria > 20 AND StatoAttuale = 'disponibile'
+        WHERE Tipologia = ? AND PercentualeBatteria > 20 AND Stato = 'disponibile'
         ORDER BY PercentualeBatteria DESC
       `;
 

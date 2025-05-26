@@ -8,7 +8,7 @@ const stazioniRicaricaController = {
       const {
         TipologiaPresa,
         GPS,
-        StatoCorrente,
+        Stato,
         CentroRicaricaIndirizzo
       } = req.body;
 
@@ -17,14 +17,14 @@ const stazioniRicaricaController = {
 
       let query = `
         INSERT INTO StazioneRicarica (
-          TipologiaPresa, GPS, StatoCorrente, CentroRicaricaIndirizzo
+          TipologiaPresa, GPS, Stato, CentroRicaricaIndirizzo
         ) VALUES (?, ST_PointFromText(?), ?, ?)
       `;
 
       if (!CentroRicaricaIndirizzo) {
         query = `
           INSERT INTO StazioneRicarica (
-            TipologiaPresa, GPS, StatoCorrente
+            TipologiaPresa, GPS, Stato
           ) VALUES (?, ST_PointFromText(?), ?)
         `;
       }
@@ -32,7 +32,7 @@ const stazioniRicaricaController = {
       const values = [
         TipologiaPresa,
         gpsFormatted,
-        StatoCorrente || 'libera'
+        Stato || 'libera'
       ];
       if (CentroRicaricaIndirizzo) {
         values.push(CentroRicaricaIndirizzo);
@@ -46,7 +46,7 @@ const stazioniRicaricaController = {
         data: {
           id: result.insertId,
           TipologiaPresa,
-          StatoCorrente: StatoCorrente || 'libera',
+          Stato: Stato || 'libera',
           CentroRicaricaIndirizzo
         }
       });
@@ -64,10 +64,10 @@ const stazioniRicaricaController = {
   updateStatoStazione: async (req, res) => {
     try {
       const { id } = req.params;
-      const { StatoCorrente } = req.body;
+      const { Stato } = req.body;
 
-      const query = `UPDATE StazioneRicarica SET StatoCorrente = ? WHERE ID = ?`;
-      const [result] = await pool.execute(query, [StatoCorrente, id]);
+      const query = `UPDATE StazioneRicarica SET Stato = ? WHERE ID = ?`;
+      const [result] = await pool.execute(query, [Stato, id]);
 
       if (result.affectedRows === 0) {
         return res.status(404).json({
@@ -79,7 +79,7 @@ const stazioniRicaricaController = {
       return res.status(200).json({
         success: true,
         message: 'Stato della colonnina aggiornato con successo',
-        data: { id, StatoCorrente }
+        data: { id, Stato }
       });
     } catch (error) {
       console.error('Errore durante l\'aggiornamento dello stato della stazione:', error);
@@ -96,7 +96,7 @@ const stazioniRicaricaController = {
     try {
       const { id } = req.params;
 
-      const query = 'UPDATE StazioneRicarica SET StatoCorrente = "eliminata" WHERE ID = ?';
+      const query = 'UPDATE StazioneRicarica SET Stato = "eliminata" WHERE ID = ?';
       const [result] = await pool.execute(query, [id]);
 
       if (result.affectedRows === 0) {
@@ -128,7 +128,7 @@ const stazioniRicaricaController = {
 
       const query = `
         SELECT 
-          s.ID, s.TipologiaPresa, s.StatoCorrente, s.CentroRicaricaIndirizzo,
+          s.ID, s.TipologiaPresa, s.Stato, s.CentroRicaricaIndirizzo,
           ST_X(s.GPS) as Latitudine, ST_Y(s.GPS) as Longitudine,
           c.NumeroStazioniDisponibili as CentroStazioni
         FROM StazioneRicarica s
