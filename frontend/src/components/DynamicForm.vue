@@ -306,6 +306,48 @@ const formatValue = (value) => {
   if (typeof value === 'boolean') return value ? 'Sì' : 'No'
   if (value instanceof Date) return value.toLocaleString('it-IT')
   
+  // Formatta stringhe di date ISO provenienti dalle API
+  if (typeof value === 'string') {
+    // Verifica se la stringa è una data ISO (più formati supportati)
+    const isoDateRegex = /^\d{4}-\d{2}-\d{2}(T|\s)\d{2}:\d{2}:\d{2}(.\d{3}Z?)?$/
+    
+    // Verifichiamo se è una data ISO standard
+    if (isoDateRegex.test(value)) {
+      try {
+        const date = new Date(value)
+        // Verifica che sia una data valida
+        if (!isNaN(date.getTime())) {
+          return date.toLocaleString('it-IT', {
+            day: '2-digit',
+            month: '2-digit', 
+            year: 'numeric',
+            hour: '2-digit',
+            minute: '2-digit'
+          })
+        }
+      } catch (e) {
+        console.error("Errore nel parsing della data:", e)
+      }
+    }
+    
+    // Verifica se è una stringa in formato POINT(lon lat)
+    if (value.toUpperCase().startsWith('POINT(')) {
+      try {
+        // Estrai le coordinate da POINT(lon lat)
+        const coords = value.substring(6, value.length - 1).split(' ');
+        if (coords.length === 2) {
+          const lon = parseFloat(coords[0]);
+          const lat = parseFloat(coords[1]);
+          if (!isNaN(lon) && !isNaN(lat)) {
+            return `${lat.toFixed(6)}, ${lon.toFixed(6)}`;
+          }
+        }
+      } catch (e) {
+        console.error("Errore nel parsing del POINT:", e);
+      }
+    }
+  }
+  
   // Gestione degli oggetti POINT SQL per le coordinate GPS
   if (typeof value === 'object' && value !== null) {
     // Se l'oggetto ha proprietà x e y (tipiche di un POINT SQL)
@@ -316,23 +358,6 @@ const formatValue = (value) => {
     // Se è un oggetto punto in formato GeoJSON
     if (value.type === 'Point' && Array.isArray(value.coordinates)) {
       return `${value.coordinates[1].toFixed(6)}, ${value.coordinates[0].toFixed(6)}`
-    }
-  }
-  
-  // Verifica se è una stringa in formato POINT(lon lat)
-  if (typeof value === 'string' && value.toUpperCase().startsWith('POINT(')) {
-    try {
-      // Estrai le coordinate da POINT(lon lat)
-      const coords = value.substring(6, value.length - 1).split(' ');
-      if (coords.length === 2) {
-        const lon = parseFloat(coords[0]);
-        const lat = parseFloat(coords[1]);
-        if (!isNaN(lon) && !isNaN(lat)) {
-          return `${lat.toFixed(6)}, ${lon.toFixed(6)}`;
-        }
-      }
-    } catch (e) {
-      console.error("Errore nel parsing del POINT:", e);
     }
   }
   

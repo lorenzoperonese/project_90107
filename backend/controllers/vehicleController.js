@@ -213,7 +213,6 @@ const vehicleController = {
   getMostRentedVehiclesByType: async (req, res) => {
     try {
       const { tipologia } = req.params;
-      console.log('Tipologia ricevuta per veicoli più noleggiati:', tipologia);
       
       const query = `
         SELECT 
