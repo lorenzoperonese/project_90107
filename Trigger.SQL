@@ -200,3 +200,56 @@ BEGIN
         WHERE cr.ID = NEW.CentroRicarica;
     END IF;
 END;
+
+-- Imposta veicolo in uso all'avvio di un noleggio
+CREATE TRIGGER set_veicolo_in_uso_on_noleggio
+AFTER INSERT ON Noleggia
+FOR EACH ROW
+BEGIN
+    UPDATE Veicolo
+    SET Stato = 'in_uso'
+    WHERE ID = NEW.VeicoloID;
+END;
+
+-- Imposta veicolo disponibile alla fine di un noleggio
+CREATE TRIGGER set_veicolo_disponibile_on_noleggio_fine
+AFTER UPDATE ON Noleggia
+FOR EACH ROW
+BEGIN
+    IF NEW.DataFine IS NOT NULL AND OLD.DataFine IS NULL THEN
+        UPDATE Veicolo
+        SET Stato = 'disponibile'
+        WHERE ID = NEW.VeicoloID;
+    END IF;
+END;
+
+
+-- Imposta stazione di ricarica occupata all'avvio di una ricarica
+CREATE TRIGGER set_stazione_veicolo_ricarica_on_start
+AFTER INSERT ON Ricarica
+FOR EACH ROW
+BEGIN
+    UPDATE StazioneRicarica
+    SET Stato = 'occupata'
+    WHERE ID = NEW.StazioneRicaricaID;
+
+    UPDATE Veicolo
+    SET Stato = 'in_ricarica'
+    WHERE ID = NEW.VeicoloID;
+END;
+
+-- Imposta stazione di ricarica libera alla fine di una ricarica
+CREATE TRIGGER set_stazione_veicolo_libera_on_end
+AFTER UPDATE ON Ricarica
+FOR EACH ROW
+BEGIN
+    IF NEW.DataFine IS NOT NULL AND OLD.DataFine IS NULL THEN
+        UPDATE StazioneRicarica
+        SET Stato = 'libera'
+        WHERE ID = NEW.StazioneRicaricaID;
+
+        UPDATE Veicolo
+        SET Stato = 'disponibile'
+        WHERE ID = NEW.VeicoloID;
+    END IF;
+END;
