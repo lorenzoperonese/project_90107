@@ -168,8 +168,7 @@ const manutenzioniController = {
   // Operazione: visualizzazione degli ultimi 5 clienti che hanno noleggiato veicoli con interventi
   getLastClientsWithInterventions: async (req, res) => {
     try {
-      const { veicoloId } = req.params;
-      console.log('ID Veicolo ricevuto:', veicoloId);
+      const { maintenanceId } = req.params;
 
       const query = `
         SELECT DISTINCT
@@ -195,11 +194,11 @@ const manutenzioniController = {
         LIMIT 5;
       `;
 
-      const [clienti] = await pool.execute(query, [veicoloId, veicoloId]);
+      const [clienti] = await pool.execute(query, [maintenanceId]);
       
       return res.status(200).json({
         success: true,
-        message: `Ultimi 5 clienti che hanno noleggiato il veicolo ID ${veicoloId} con interventi recuperati con successo`,
+        message: `Ultimi 5 clienti che hanno noleggiato il veicolo ID ${maintenanceId} con interventi recuperati con successo`,
         count: clienti.length,
         data: clienti
       });
@@ -278,10 +277,10 @@ const manutenzioniController = {
   // Visualizzazione dei noleggi effettuati prima di un intervento
   getNoleggiBeforeIntervento: async (req, res) => {
     try {
-      const { interventoId } = req.params;
+      const { maintenanceId } = req.params;
       
       // Verifica che l'ID sia valido
-      if (!interventoId || isNaN(interventoId)) {
+      if (!maintenanceId || isNaN(maintenanceId)) {
         return res.status(400).json({
           success: false,
           message: 'ID Intervento non valido'
@@ -314,7 +313,7 @@ const manutenzioniController = {
         ORDER BY n.DataFine DESC
       `;
       
-      const [noleggi] = await pool.execute(query, [interventoId]);
+      const [noleggi] = await pool.execute(query, [maintenanceId]);
       
       return res.status(200).json({
         success: true,

@@ -177,7 +177,7 @@ export function useApi() {
   }
 
   const handleRicaricheAPI = async (operation, formData) => {
-    const baseUrl = '/api/ricariche'
+    const baseUrl = '/api/charges'
     
     switch (operation) {
       case 'create':
@@ -213,7 +213,7 @@ export function useApi() {
   }
 
   const handleCentriRicaricaAPI = async (operation, formData) => {
-    const baseUrl = '/api/centri-ricarica'
+    const baseUrl = '/api/charging-centers'
     
     switch (operation) {
       case 'create':
@@ -242,7 +242,7 @@ export function useApi() {
   }
 
   const handleStazioniRicaricaAPI = async (operation, formData) => {
-    const baseUrl = '/api/stazioni-ricarica'
+    const baseUrl = '/api/charging-stations'
     
     switch (operation) {
       case 'create':
@@ -278,7 +278,7 @@ export function useApi() {
   }
 
   const handleTariffeAPI = async (operation, formData) => {
-    const baseUrl = '/api/tariffe'
+    const baseUrl = '/api/fares'
     
     switch (operation) {
       case 'update':

@@ -4,8 +4,8 @@ const tariffeController = {
   // Operazione 8.a - Modifica: modifica della tariffa di una certa tipologia di veicolo
   updateTariffa: async (req, res) => {
     try {
-      const { categoria } = req.params;
-      const decodedCategoria = decodeURIComponent(categoria);
+      const { category } = req.params;
+      const decodedCategoria = decodeURIComponent(category);
       const { CostoAlMinuto } = req.body;
 
       const query = `UPDATE Tariffa SET CostoAlMinuto = ? WHERE CategoriaVeicolo = ?`;

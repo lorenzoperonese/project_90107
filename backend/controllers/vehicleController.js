@@ -181,8 +181,7 @@ const vehicleController = {
   // Operazione 1.d - Ricerca2: visualizzazione veicoli per tipologia con batteria > 20%
   getVehiclesByTypeAndBattery: async (req, res) => {
     try {
-      const { tipologia } = req.params;
-      console.log('Tipologia ricevuta:', tipologia);
+      const { type } = req.params;
 
       const query = `
         SELECT *
@@ -191,7 +190,7 @@ const vehicleController = {
         ORDER BY PercentualeBatteria DESC
       `;
 
-      const [vehicles] = await pool.execute(query, [tipologia]);
+      const [vehicles] = await pool.execute(query, [type]);
       
       return res.status(200).json({
         success: true,
@@ -212,7 +211,7 @@ const vehicleController = {
   // Operazione 1.e - Visualizzazione dei 5 veicoli più noleggiati nell'ultimo anno per tipologia
   getMostRentedVehiclesByType: async (req, res) => {
     try {
-      const { tipologia } = req.params;
+      const { type } = req.params;
       
       const query = `
         SELECT 
@@ -236,7 +235,7 @@ const vehicleController = {
         LIMIT 5;
       `;
       
-      const [vehicles] = await pool.execute(query, [tipologia]);
+      const [vehicles] = await pool.execute(query, [type]);
       
       return res.status(200).json({
         success: true,
