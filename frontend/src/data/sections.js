@@ -21,7 +21,7 @@ export const sections = [
       },
       { name: 'Targa', label: 'Targa', type: 'text', placeholder: 'AB123CD', required: true, showOnlyFor: ['create' ], requiresVehicleType: ['auto', 'scooter'] },
       { name: 'ScadenzaRevisione', label: 'Scadenza Revisione', type: 'date', required: true, showOnlyFor: ['create'], requiresVehicleType: ['auto', 'scooter'] },
-      { name: 'NumeroPolizzaAssicurativa', label: 'Numero Polizza Assicurativa', type: 'text', placeholder: 'POL123456789', required: true, showOnlyFor: ['create'], requiresVehicleType: ['auto', 'scooter'] },
+      { name: 'NumeroPolizzaAssicurativa', label: 'Numero Polizza Assicurativa', type: 'text', placeholder: 'POL123456789', required: true, showOnlyFor: ['create'] },
       { name: 'Modello', label: 'Modello', type: 'text', placeholder: 'Model S', required: true, showOnlyFor: ['create'] },
       { name: 'Marca', label: 'Marca', type: 'text', placeholder: 'Tesla', required: true, showOnlyFor: ['create'] },
       { name: 'NumeroPosti', label: 'Numero Posti', type: 'number', placeholder: '5', required: true, showOnlyFor: ['create'], requiresVehicleType: ['auto', 'scooter'] },
@@ -29,7 +29,7 @@ export const sections = [
       { name: 'PercentualeBatteria', label: 'Percentuale Batteria (%)', type: 'number', placeholder: '85', required: true, showOnlyFor: ['create', 'update'] },
       { name: 'gpsQuery', label: 'Coordinate GPS', type: 'text', placeholder: '44.4949, 11.3426', required: true, showOnlyFor: ['create', 'update'] },
       { name: 'Stato', label: 'Stato Attuale', type: 'select', options: ['disponibile', 'in_uso', 'in_ricarica', 'fuori_servizio'], required: true, showOnlyFor: ['create', 'update'] },
-      { name: 'ChilometraggioTotale', label: 'Chilometraggio Totale (km)', type: 'number', placeholder: '15000', required: true, showOnlyFor: ['create', 'update'], requiresVehicleType: ['auto', 'scooter'] }
+      { name: 'ChilometraggioTotale', label: 'Chilometraggio Totale (km)', type: 'number', placeholder: '15000', required: true, showOnlyFor: ['create', 'update'] }
     ]
   },
   {

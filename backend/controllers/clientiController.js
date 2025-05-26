@@ -12,7 +12,7 @@ const clientiController = {
       const { id } = req.params;
 
       // Elimina Account
-      const accountQuery = 'UPDATE Account SET Stato = "eliminato" WHERE ID = ?';
+      const accountQuery = 'UPDATE Account_Attivo SET Stato = "eliminato" WHERE ID = ?';
       await connection.execute(accountQuery, [id]);
       await connection.commit();
 
@@ -143,7 +143,7 @@ const clientiController = {
       const [result] = await pool.execute(query, [NumeroCarta, Intestatario, CVV, Scadenza]);
 
       const updateAccountQuery = `
-        UPDATE Account SET MetodoPagamento = ?
+        UPDATE Account_Attivo SET MetodoPagamento = ?
         WHERE ID = ?
       `;
       await pool.execute(updateAccountQuery, [NumeroCarta, id]);

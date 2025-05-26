@@ -194,30 +194,6 @@ const manutenzioniController = {
         INNER JOIN Officina o ON ei.OfficinaID = o.ID
         WHERE v.ID = ?
         
-        UNION
-        
-        SELECT DISTINCT
-          c.AccountID,
-          c.Nome,
-          c.Cognome,
-          acc.Email,
-          n.DataInizio as UltimoNoleggio,
-          n.DataFine,
-          v.Targa,
-          v.Modello,
-          v.Marca,
-          'Revisione' as TipoManutenzione,
-          er.Data as DataIntervento,
-          'Revisione' as DescrizioneIntervento,
-          o.Nome as OfficinaNome
-        FROM Cliente c
-        INNER JOIN Account acc ON c.AccountID = acc.ID
-        INNER JOIN Noleggia n ON c.AccountID = n.ClienteAccountID
-        INNER JOIN Veicolo v ON n.VeicoloID = v.ID
-        INNER JOIN EsegueRevisione er ON v.ID = er.VeicoloID
-        INNER JOIN Officina o ON er.OfficinaID = o.ID
-        WHERE v.ID = ?
-        
         ORDER BY UltimoNoleggio DESC
         LIMIT 5
       `;

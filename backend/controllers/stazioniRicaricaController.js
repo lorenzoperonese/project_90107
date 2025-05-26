@@ -66,7 +66,7 @@ const stazioniRicaricaController = {
       const { id } = req.params;
       const { Stato } = req.body;
 
-      const query = `UPDATE StazioneRicarica SET Stato = ? WHERE ID = ?`;
+      const query = `UPDATE StazioneRicarica_Attivo SET Stato = ? WHERE ID = ?`;
       const [result] = await pool.execute(query, [Stato, id]);
 
       if (result.affectedRows === 0) {
@@ -96,7 +96,7 @@ const stazioniRicaricaController = {
     try {
       const { id } = req.params;
 
-      const query = 'UPDATE StazioneRicarica SET Stato = "eliminata" WHERE ID = ?';
+      const query = 'UPDATE StazioneRicarica_Attivo SET Stato = "eliminata" WHERE ID = ?';
       const [result] = await pool.execute(query, [id]);
 
       if (result.affectedRows === 0) {
@@ -131,7 +131,7 @@ const stazioniRicaricaController = {
           s.ID, s.TipologiaPresa, s.Stato, s.CentroRicaricaIndirizzo,
           ST_X(s.GPS) as Latitudine, ST_Y(s.GPS) as Longitudine,
           c.NumeroStazioniDisponibili as CentroStazioni
-        FROM StazioneRicarica s
+        FROM StazioneRicarica_Attivo s
         LEFT JOIN CentroRicarica c ON s.CentroRicaricaIndirizzo = c.Indirizzo
         WHERE s.CentroRicaricaIndirizzo LIKE ?
         ORDER BY s.ID

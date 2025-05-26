@@ -34,10 +34,17 @@ SET FOREIGN_KEY_CHECKS = 1;
 -- ============================================================================
 
 CREATE TABLE MetodoPagamento (
-    NumeroCarta VARCHAR(25) PRIMARY KEY, 
+    ID INT AUTO_INCREMENT PRIMARY KEY,
+    NumeroCarta VARCHAR(25) NOT NULL UNIQUE
     Intestatario VARCHAR(255) NOT NULL,
     CVV VARCHAR(4) NOT NULL, 
-    Scadenza DATE NOT NULL 
+    Scadenza DATE NOT NULL,  -- Unico per intestatario e numero carta
+    CONSTRAINT check_carta CHECK 
+    (
+        LENGTH(NumeroCarta) BETWEEN 13 AND 19 AND 
+        NumeroCarta REGEXP '^[0-9]+$' AND
+        Scadenza > CURRENT_DATE
+    )
 );
 
 CREATE TABLE Account (
@@ -84,7 +91,8 @@ CREATE TABLE Abbonamento (
 );
 
 CREATE TABLE CentroRicarica (
-    Indirizzo VARCHAR(255) PRIMARY KEY,
+    ID INT AUTO_INCREMENT PRIMARY KEY,
+    Indirizzo VARCHAR(255) NOT NULL UNIQUE,
     NumeroStazioniDisponibili INT NOT NULL DEFAULT 0 CHECK (NumeroStazioniDisponibili >= 0)
 );
 
@@ -157,8 +165,8 @@ CREATE TABLE StazioneRicarica (
     TipologiaPresa VARCHAR(100) NOT NULL, 
     GPS POINT NOT NULL, 
     Stato ENUM('libera', 'occupata', 'in_manutenzione', 'fuori_servizio', 'eliminata') NOT NULL DEFAULT 'libera',
-    CentroRicaricaIndirizzo VARCHAR(255) NULL,
-    FOREIGN KEY (CentroRicaricaIndirizzo) REFERENCES CentroRicarica(Indirizzo) ON DELETE SET NULL ON UPDATE CASCADE
+    CentroRicarica VARCHAR(255) NULL,
+    FOREIGN KEY (CentroRicarica) REFERENCES CentroRicarica(ID) ON DELETE SET NULL ON UPDATE CASCADE
 );
 
 CREATE TABLE Noleggia (
@@ -238,7 +246,7 @@ CREATE TABLE Ricarica (
 CREATE VIEW Veicolo_Attivo AS
 SELECT *
 From Veicolo
-Where Stato <> 'eliminato' AND
+Where Stato <> 'eliminato';
 
 CREATE VIEW StazioneRicarica_Attivo AS
 SELECT *
@@ -249,5 +257,17 @@ CREATE VIEW Account_Attivo AS
 SELECT *
 FROM Account
 WHERE Stato <> 'eliminato';
+
+CREATE VIEW Cliente_Account_Info AS
+SELECT 
+    c.Nome, 
+    c.Cognome, 
+    c.DocumentoNumero,
+    a.Email,
+    a.Telefono, 
+    a.Stato,
+    a.ID,
+FROM Cliente c
+JOIN Account a ON c.AccountID = a.ID;
 
 COMMIT; 

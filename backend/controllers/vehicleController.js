@@ -118,7 +118,7 @@ const vehicleController = {
       ];
 
       console.log('Valori per l\'aggiornamento:', values);
-      const query = 'UPDATE Veicolo SET PercentualeBatteria = ?, GPS = ST_PointFromText(?), Stato = ?, ChilometraggioTotale = ? WHERE ID = ?';
+      const query = 'UPDATE Veicolo_Attivo SET PercentualeBatteria = ?, GPS = ST_PointFromText(?), Stato = ?, ChilometraggioTotale = ? WHERE ID = ?';
 
       const [result] = await pool.execute(query, values);
       if (result.affectedRows === 0) {
@@ -154,7 +154,7 @@ const vehicleController = {
       const { id } = req.params;
       console.log('ID ricevuto per la cancellazione:', id);
       
-      const query = 'UPDATE Veicolo SET Stato = "eliminato" WHERE ID = ?';
+      const query = 'UPDATE Veicolo_Attivo SET Stato = "eliminato" WHERE ID = ?';
       const [result] = await pool.execute(query, [id]);
       
       if (result.affectedRows === 0) {
@@ -178,7 +178,7 @@ const vehicleController = {
     }
   },
 
-  // Operazione 1.d - Ricerca1: visualizzazione dei dettagli di un veicolo per targa
+  // Operazione 1.d - Ricerca1: visualizzazione dei dettagli di un Veicolo_Attivo per targa
   getVehicleByTarga: async (req, res) => {
     try {
       const { targa } = req.params;
@@ -186,7 +186,7 @@ const vehicleController = {
       
       const query = `
         SELECT *
-        FROM Veicolo 
+        FROM Veicolo_Attivo 
         WHERE Targa = ?
       `;
       
@@ -222,7 +222,7 @@ const vehicleController = {
 
       const query = `
         SELECT *
-        FROM Veicolo 
+        FROM Veicolo_Attivo 
         WHERE Tipologia = ? AND PercentualeBatteria > 20 AND Stato = 'disponibile'
         ORDER BY PercentualeBatteria DESC
       `;
