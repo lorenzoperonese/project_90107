@@ -142,3 +142,61 @@ BEGIN
         SIGNAL SQLSTATE '45000' SET MESSAGE_TEXT = 'Esiste già un abbonamento attivo per questo cliente';
     END IF;
 END;
+
+CREATE TRIGGER update_durata_costo_noleggio
+BEFORE UPDATE ON Noleggia
+FOR EACH ROW
+BEGIN
+    DECLARE tariffa DECIMAL(3,2);
+    DECLARE durata INT;
+    DECLARE abbonamenti_attivi INT;
+
+    IF NEW.DataFine IS NOT NULL THEN
+        SET durata = TIMESTAMPDIFF(MINUTE, OLD.DataInizio, NEW.DataFine);
+        SET NEW.DurataMinuti = durata;
+
+        SELECT COUNT(*) INTO abbonamenti_attivi
+        FROM Acquisti_Abbonamenti
+        WHERE ClienteAccountID = NEW.ClienteAccountID
+          AND DataInizioValidita <= NEW.DataFine
+          AND DataFineValidita >= NEW.DataFine;
+
+        IF abbonamenti_attivi = 0 THEN
+            SELECT CostoAlMinuto INTO tariffa
+            FROM Veicolo v
+            JOIN Tariffa t ON v.Tipologia = t.CategoriaVeicolo
+            WHERE v.ID = NEW.VeicoloID;
+            SET NEW.Costo = durata * tariffa;
+        ELSE
+            SET NEW.Costo = 0;
+        END IF;
+    END IF;
+END;
+
+CREATE TRIGGER update_num_stazioni_libere_insert
+AFTER INSERT ON StazioneRicarica
+FOR EACH ROW
+BEGIN
+    IF NEW.CentroRicarica IS NOT NULL THEN
+        UPDATE CentroRicarica cr
+        SET cr.NumeroStazioniDisponibili = (
+            SELECT COUNT(*) FROM StazioneRicarica sr
+            WHERE sr.CentroRicarica = NEW.CentroRicarica AND sr.Stato = 'libera'
+        )
+        WHERE cr.ID = NEW.CentroRicarica;
+    END IF;
+END;
+
+CREATE TRIGGER update_num_stazioni_libere_update
+AFTER UPDATE ON StazioneRicarica
+FOR EACH ROW
+BEGIN
+    IF NEW.CentroRicarica IS NOT NULL THEN
+        UPDATE CentroRicarica cr
+        SET cr.NumeroStazioniDisponibili = (
+            SELECT COUNT(*) FROM StazioneRicarica sr
+            WHERE sr.CentroRicarica = NEW.CentroRicarica AND sr.Stato = 'libera'
+        )
+        WHERE cr.ID = NEW.CentroRicarica;
+    END IF;
+END;
