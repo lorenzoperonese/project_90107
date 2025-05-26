@@ -29,7 +29,7 @@ BEGIN
         ELSE
             SELECT AutoAbilitata, Scadenza INTO autoAbilitata, Scadenza
             FROM Patente
-            WHERE Numero = patenteNumero;
+            WHERE Numero = p;
             IF Scadenza <= CURDATE() THEN
                 SIGNAL SQLSTATE '45000' SET MESSAGE_TEXT = 'Patente scaduta';
             END IF;
