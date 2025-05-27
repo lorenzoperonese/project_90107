@@ -44,8 +44,7 @@
         <!-- Placeholder when no operation selected -->
         <div v-else class="flex-1 flex items-center justify-center text-gray-500 rounded-b-3xl">
           <div class="text-center">
-            <div class="text-6xl mb-4">🎯</div>
-            <p class="text-lg">Seleziona un'operazione per iniziare</p>
+            <p class="text-lg">Seleziona un'operazione</p>
           </div>
         </div>
       </div>

@@ -113,7 +113,7 @@ export const sections = [
     title: 'Centri di Ricarica',
     description: 'Gestione centri ricarica',
     icon: '🏢',
-    operations: ['create', 'read-total-energy', 'read-most-active-centers'],
+    operations: ['create', 'read-total-energy', 'read-most-active-centers', 'read-by-stations'],
     fields: [
       { name: 'Indirizzo', label: 'Indirizzo', type: 'text', placeholder: 'Via Bologna 123, Bologna', required: true },
       { name: 'ID', label: 'ID Centro', type: 'number', placeholder: '1', required: false, showOnlyFor: ['read-total-energy', 'read-most-active-centers'] }

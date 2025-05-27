@@ -66,7 +66,7 @@ const stazioniRicaricaController = {
       const { id } = req.params;
       const { Stato } = req.body;
 
-      const query = `UPDATE StazioneRicarica_Attivo SET Stato = ? WHERE ID = ?`;
+      const query = `UPDATE StazioneRicarica SET Stato = ? WHERE ID = ?`;
       const [result] = await pool.execute(query, [Stato, id]);
 
       if (result.affectedRows === 0) {

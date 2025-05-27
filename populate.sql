@@ -157,12 +157,21 @@ INSERT INTO EsegueIntervento VALUES
 (4, 1, 1, '2023-09-01 11:00:00', 290.00, 'Manutenzione elettronica', 'Aggiornamento firmware e controllo centraline');
 
 -- Inserimento Ricariche
-INSERT INTO Ricarica VALUES
-(1, 6, 1, 1, '2023-09-01 08:00:00', '2023-09-01 09:30:00', 25.00, 40.5),
-(2, 7, 6, 3, '2023-09-02 10:15:00', '2023-09-02 12:00:00', 30.50, 55.2),
-(3, 6, 13, 2, '2023-09-03 14:30:00', NULL, NULL, NULL),
-(4, NULL, 7, 4, '2023-09-04 16:45:00', '2023-09-04 18:30:00', 22.75, 38.1),
-(5, 7, 4, 5, '2023-09-05 09:00:00', '2023-09-05 10:45:00', 28.90, 45.7);
+INSERT INTO Ricarica(ID, OperatoreAccountID, VeicoloID, StazioneRicaricaID) VALUES
+(1, 6, 1, 1),
+(2, 7, 6, 3),
+(3, 6, 13, 2),
+(4, NULL, 7, 4),
+(5, 7, 4, 5);
+
+-- Update Ricariche
+UPDATE Ricarica SET CostoSessione = 25.00, KWhCaricati = 40.5, DataFine = NOW() WHERE ID = 1;
+UPDATE Ricarica SET CostoSessione = 30.50, KWhCaricati = 55.2, DataFine = NOW() WHERE ID = 2;
+UPDATE Ricarica SET CostoSessione = 22.75, KWhCaricati = 38.1, DataFine = NOW() WHERE ID = 4;
+UPDATE Ricarica SET CostoSessione = 28.90, KWhCaricati = 45.7, DataFine = NOW() WHERE ID = 5;
+
+
+
 
 -- Riabilita i controlli di foreign key
 SET FOREIGN_KEY_CHECKS = 1;

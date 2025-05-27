@@ -2,8 +2,6 @@
   <div :class="containerClass">
     <label :for="fieldId" :class="labelClass">
       {{ field.label }}
-      <span v-if="required" class="text-red-500">*</span>
-      <span v-if="showOptional" class="text-xs text-yellow-600">(opzionale)</span>
       <span v-if="disabled && field.requiresVehicleType" class="text-xs text-gray-500">(non necessario per biciclette e monopattini)</span>
     </label>
     

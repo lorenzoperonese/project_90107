@@ -28,7 +28,8 @@ const operationDefinitions = {
   'read-most-active-operators': { id: 'read-most-active-operators', name: 'Operatori Più Attivi', icon: '👨‍🔧', color: 'bg-blue-500' },
   'read-total-energy': { id: 'read-total-energy', name: 'Energia Totale', icon: '⚡', color: 'bg-blue-500' },
   'read-most-active-centers': { id: 'read-most-active-centers', name: 'Centri Più Attivi', icon: '🏢', color: 'bg-blue-500' },
-  'read-avg-session-duration': { id: 'read-avg-session-duration', name: 'Durata Media Sessione', icon: '⏱️', color: 'bg-blue-500' }
+  'read-avg-session-duration': { id: 'read-avg-session-duration', name: 'Durata Media Sessione', icon: '⏱️', color: 'bg-blue-500' },
+  'read-by-stations': { id: 'read-by-stations', name: 'Centri per Colonnine', icon: '🔌', color: 'bg-blue-500' }
 }
 
 const buttonTexts = {
@@ -100,6 +101,7 @@ export function useOperations() {
         'read-total-energy': [{}],
         'read-most-active-centers': [{}],
         'read-avg-session-duration': [{}],
+        'read-by-stations': [{}],
         'read-vehicle': [{ name: 'VeicoloID', label: 'ID Veicolo', type: 'number', placeholder: '123' }],
         'read-operator': [{ name: 'OperatoreAccountID', label: 'ID Operatore', type: 'number', placeholder: '456' }],
         'read-centro': [{ }],

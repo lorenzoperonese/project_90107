@@ -235,6 +235,11 @@ export function useApi() {
           headers: { 'Content-Type': 'application/json' }
         })
       
+      case 'read-by-stations':
+        return fetch(`${baseUrl}/by-stations`, {
+          method: 'GET',
+          headers: { 'Content-Type': 'application/json' }
+        })
         
       default:
         throw new Error('Operazione non supportata')

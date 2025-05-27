@@ -11,4 +11,7 @@ router.get('/most-active', centriRicaricaController.getCentriPiuAttivi);
 // Op 6.b: Visualizzazione energia totale ricaricata per centro di ricarica
 router.get('/total-energy', centriRicaricaController.getEnergiaTotale);
 
+// Op 6.d: Visualizzazione di tutti i centri di ricarica ordinati per numero di colonnine disponibili
+router.get('/by-stations', centriRicaricaController.getCentriByStazioni);
+
 module.exports = router; 

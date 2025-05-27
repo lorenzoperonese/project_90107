@@ -107,6 +107,36 @@ const centriRicaricaController = {
         error: error.message
       });
     }
+  },
+
+  // Op 6.d: Visualizzazione di tutti i centri di ricarica ordinati per numero di colonnine disponibili
+  getCentriByStazioni: async (req, res) => {
+    try {
+      const query = `
+        SELECT 
+          cr.ID,
+          cr.Indirizzo,
+          cr.NumeroStazioniDisponibili
+        FROM CentroRicarica cr
+        ORDER BY cr.NumeroStazioniDisponibili DESC
+      `;
+      
+      const [centri] = await pool.execute(query);
+      
+      return res.status(200).json({
+        success: true,
+        message: 'Centri di ricarica ordinati per numero di colonnine disponibili recuperati con successo',
+        count: centri.length,
+        data: centri
+      });
+    } catch (error) {
+      console.error('Errore durante il recupero dei centri ordinati per colonnine:', error);
+      return res.status(500).json({
+        success: false,
+        message: 'Errore durante il recupero dei centri ordinati per colonnine',
+        error: error.message
+      });
+    }
   }
 };
 

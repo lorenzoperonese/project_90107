@@ -228,7 +228,7 @@ UPDATE Ricarica
         SET DataFine = NOW(), CostoSessione = ?, KWhCaricati = ?
         WHERE ID = ?
 
--- Veicoli che hanno effettuato più ricariche nell’ultimo mese
+-- Veicoli che hanno effettuato più ricariche nell'ultimo mese
 SELECT 
     v.ID,
     v.Targa,
@@ -279,6 +279,14 @@ WHERE r.DataInizio >= DATE_SUB(CURDATE(), INTERVAL 1 YEAR)
 GROUP BY cr.ID, cr.NumeroStazioniDisponibili
 ORDER BY NumeroRicariche DESC
 LIMIT 5;
+
+-- Op 6.d: Visualizzazione di tutti i centri di ricarica ordinati per numero di colonnine disponibili
+SELECT 
+    cr.ID,
+    cr.Indirizzo,
+    cr.NumeroStazioniDisponibili
+FROM CentroRicarica cr
+ORDER BY cr.NumeroStazioniDisponibili DESC;
 
 -- Op 7.a: Inserimenti di una nuova stazione di ricarica
 INSERT INTO StazioneRicarica (

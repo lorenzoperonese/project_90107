@@ -37,11 +37,7 @@
                 <!-- No results message -->
                 <div v-if="Array.isArray(searchResults) && searchResults.length === 0" 
                      class="text-center py-8 bg-blue-50 border border-blue-100 rounded-lg">
-                  <svg xmlns="http://www.w3.org/2000/svg" class="h-12 w-12 mx-auto text-blue-400 mb-3" fill="none" viewBox="0 0 24 24" stroke="currentColor">
-                    <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M9.172 16.172a4 4 0 015.656 0M9 10h.01M15 10h.01M12 12.5a2.5 2.5 0 100-5 2.5 2.5 0 000 5z" />
-                  </svg>
                   <p class="text-lg font-medium text-gray-700">Nessun risultato trovato</p>
-                  <p class="text-gray-500 mt-1">Prova a modificare i parametri di ricerca</p>
                 </div>
 
                 <!-- Array of results -->
@@ -106,12 +102,6 @@
                 :required="true"
                 class-prefix="border-red-200 focus:border-red-500"
               />
-              <div class="space-y-2">
-                <label class="block text-sm font-medium text-red-800">Conferma Operazione</label>
-                <div class="bg-red-50 border border-red-200 rounded-lg p-3">
-                  <p class="text-red-800 text-sm">⚠️ Il record verrà eliminato definitivamente</p>
-                </div>
-              </div>
             </div>
           </div>
 
