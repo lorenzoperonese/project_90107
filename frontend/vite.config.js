@@ -22,6 +22,12 @@ export default defineConfig({
         target: 'http://localhost:30000',
         changeOrigin: true,
         secure: false,
+        configure: (proxy, options) => {
+          proxy.on('proxyReq', (proxyReq, req, _res) => {
+            const ip = req.headers['x-forwarded-for'] || req.socket.remoteAddress || req.connection.remoteAddress;
+            console.log(`[PROXY] IP: ${ip} - ${req.method} ${req.url}`);
+            });
+        }
         // pathRewrite: { '^/api': '' } // Se il server non ha bisogno di /api
       }
     }
