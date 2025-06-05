@@ -11,6 +11,8 @@
 \usepackage[tableposition=below]{caption}
 \captionsetup[longtable]{skip=1em} 
 
+\graphicspath{{./docs/}}
+
 \usepackage{listings}
 \usepackage{xcolor}
 
@@ -46,7 +48,8 @@
 }
 \title{Gestione servizio di vehicle sharing}
 
-\author{Lorenzo Peronese, Emanuele Argonni}
+\author{Lorenzo Peronese, 0001081726 \\
+Emanuele Argonni, 0001078626}
 
 \begin{document}
 
@@ -140,7 +143,7 @@ Si vuole tracciare lo storico di tutte le manutenzioni effettuate sui veicoli su
         \item \textsc{inserimento:} aggiunta di un veicolo alla flotta
         \item \textsc{modifica:} aggiornamento dei dati dello stato del veicolo (percentuale batteria, posizione GPS, km totali, stato attuale)
         \item \textsc{cancellazione:} rimozione di un veicolo dalla flotta
-        \item \textsc{ricerca:} visualizzazione dei veicoli disponibili per tipologia con il livello della batteria maggiore del 20%
+        \item \textsc{ricerca:} visualizzazione dei veicoli disponibili per tipologia con il livello della batteria maggiore del 20\%
         \item \textsc{ricerca:} visualizzazione dei 10 veicolo più noleggiati nell'ultimo anno per tipologia
         \item \textsc{ricerca}: visualizzazione dei 5 veicoli che hanno ricevuto più interventi nell'ultimo anno
     \end{enumerate}
@@ -475,7 +478,7 @@ La ristrutturazione dello schema ER richiede di eliminare le ridondanze, le gene
 % TODO
 
 \subsubsection{Eliminazione delle ridondanze}
-Per quanto riguarda le ridondanze, nel capitolo \ref{regole-aziendali} ne abbiamo identificate 2:
+Per quanto riguarda le ridondanze, nel capitolo \ref{sec:regole-aziendali} ne abbiamo identificate 2:
 
 \begin{enumerate}
     \item numero di stazioni libere in un centro di ricarica, calcolabile contando le colonnine appartenenti a quel centro di ricarica che hanno stato "libera"
@@ -561,7 +564,7 @@ La seconda ridondanza riguarda l'attributo "durata" di noleggio che può essere 
 
 Le operazioni influenzate da queste ridondanza sono: 2.b (aggiornamento dei dati alla conclusione del noleggio) e 2.c (visualizzazione della durata media dei noleggi). 
 
-\begin{table}[h]
+\begin{table}[H]
   \centering
   \begin{tabular}{|c|c|c|c|}
     \hline
@@ -572,7 +575,7 @@ Le operazioni influenzate da queste ridondanza sono: 2.b (aggiornamento dei dati
   \caption{Tavola accessi op. 2.b in presenza di ridondanza}
 \end{table}
 
-\begin{table}[h]
+\begin{table}[H]
   \centering
   \begin{tabular}{|c|c|c|c|}
     \hline
@@ -582,7 +585,7 @@ Le operazioni influenzate da queste ridondanza sono: 2.b (aggiornamento dei dati
   \caption{Tavola accessi op. 2.b in assenza di ridondanza}
 \end{table}
 
-\begin{table}[h]
+\begin{table}[H]
   \centering
   \begin{tabular}{|c|c|c|c|}
     \hline
@@ -593,7 +596,7 @@ Le operazioni influenzate da queste ridondanza sono: 2.b (aggiornamento dei dati
   \caption{Tavola accessi op. 2.c in presenza di ridondanza}
 \end{table}
 
-\begin{table}[h]
+\begin{table}[H]
   \centering
   \begin{tabular}{|c|c|c|c|}
     \hline
@@ -610,6 +613,7 @@ Costo annuale senza ridondanza: 2 (costo) * 1.500.000 = 3.000.000
 
 Il costo totale annuo in assenza di ridondanza è inferiore, quindi abbiamo deciso di rimuovere l'attributo "Durata".
 
+\subsubsection{Eliminazione degli attributi composti}
 
 I seguenti attributi composti vengono scomposti e inseriti come attributi dell'entità.
 \begin{itemize}
@@ -705,12 +709,9 @@ Anche per quanto riguarda le entità, dopo i dovuti partizionamenti decisi duran
     \label{tab:entità-relazioni}
 \end{table}
 
-
 \subsubsection{Traduzione e vincoli di riferimento}
 
-\begin{table}[H]
-    \centering
-    \begin{tabularx}{\textwidth}{|X|X|}
+\begin{longtable}[H]{|p{7cm}|p{7cm}|}
         \hline
         \textbf{Traduzione} & \textbf{Vincoli di riferimento} \\ \hline
         Account(\underline{ID}, Email, Password, Telefono, Stato, Dipendente, MetodoPagamento, DataRegistrazione) & MetodoPagamento \(\to\) MetodoPagamento.ID \\ \hline
@@ -732,10 +733,9 @@ Anche per quanto riguarda le entità, dopo i dovuti partizionamenti decisi duran
         EsegueRevisione(\underline{ID}, VeicoloID, OfficinaID, Data, Costo, Note) & VeicoloID \(\to\) Veicolo.ID, OfficinaID \(\to\) Officina.ID \\ \hline
         EsegueIntervento(\underline{ID}, VeicoloID, OfficinaID, Data, Costo, Tipologia, Descrizione) & VeicoloID \(\to\) Veicolo.ID, OfficinaID \(\to\) Officina.ID \\ \hline
         Ricarica(\underline{ID}, Operatore, VeicoloID, StazioneRicarica, DataInizio, DataFine, CostoSessione, KWhCaricati) & Operatore \(\to\) OperatoreRicarica.AccountID, VeicoloID \(\to\) Veicolo.ID, StazioneRicarica \(\to\) StazioneRicarica.ID \\ \hline
-    \end{tabularx}
-    \caption{Verso il modello relazionale: entità-relazioni (traduzioni uniformate)}
+    \caption{Verso il modello relazionale: traduzione e vincoli di riferimento}
     \label{tab:entita-relazioni-tradotte}
-\end{table}
+\end{longtable}
 
 
 
@@ -1001,7 +1001,7 @@ Per questo motivo abbiamo aggiunto le viste \textsc{Veicolo\_Attivo} e \textsc{C
 %Data la necessità di tenere sempre tutti i dati storici sui noleggi e la possibilità di cancellazione di account e veicoli abbiamo deciso di effettuare una soft-delete invece di una cancellazione reale. 
 %Quindi abbiamo deciso di definire le viste Veicolo\_Attivo e Account\_Attivo per ottenere solamente i record che non sono stati cancellati.
 
-\subsection{Codifica dei TRIGGER}
+\subsection{Codifica dei trigger}
 
 Per ogni regola aziendale prefissata (vedi sez. \ref{sec:regole-aziendali}) abbiamo implementato un \textsc{check} a livello di database (o, quando questo non era possibile, un \textsc{trigger}) che controllasse la consistenza dei dati e il rispetto dei constraint prima di aggiungerli alle tabelle.
 
@@ -1016,13 +1016,13 @@ FOR EACH ROW
 BEGIN
     IF NEW.DataNascita > DATE_SUB(CURDATE(), INTERVAL 18 YEAR) THEN
         SIGNAL SQLSTATE '45000' 
-        SET MESSAGE_TEXT = 'Età minima 18 anni';
+        SET MESSAGE_TEXT = 'Eta\' minima 18 anni';
     END IF;
 END;
 
 
 -- vincolo 2
-CREATE TRIGGER check_patente_noleggio
+CREATE TRIGGER check_patente
 BEFORE INSERT ON Noleggia
 FOR EACH ROW
 BEGIN
@@ -1052,7 +1052,7 @@ BEGIN
 END;
 
 -- vincolo 3
-CREATE TRIGGER check_stato_account_noleggio
+CREATE TRIGGER check_stato_account
 BEFORE INSERT ON Noleggia
 FOR EACH ROW
 BEGIN
@@ -1063,12 +1063,12 @@ BEGIN
     WHERE a.ID = NEW.Cliente;
     
     IF stato <> 'attivo' THEN
-        SIGNAL SQLSTATE '45000' SET MESSAGE_TEXT = 'Il cliente non è attivo e non può noleggiare';
+        SIGNAL SQLSTATE '45000' SET MESSAGE_TEXT = 'Il cliente non e\' attivo e non puo\' noleggiare';
     END IF;
 END;
 
 -- vincolo 4
-CREATE TRIGGER check_metodo_pagamento_noleggio
+CREATE TRIGGER check_metodo_pagamento
 BEFORE INSERT ON Noleggia
 FOR EACH ROW
 BEGIN
@@ -1082,7 +1082,7 @@ BEGIN
 END;
 
 -- vincolo 5
-CREATE TRIGGER check_documenti_validi_noleggio
+CREATE TRIGGER check_documento
 BEFORE INSERT ON Noleggia
 FOR EACH ROW
 BEGIN
@@ -1096,7 +1096,7 @@ BEGIN
 END;
 
 -- vincolo 8
-CREATE TRIGGER check_veicolo_disponibile_noleggio
+CREATE TRIGGER check_veicolo_disponibile
 BEFORE INSERT ON Noleggia
 FOR EACH ROW
 BEGIN
@@ -1131,12 +1131,12 @@ BEGIN
     -- Cliente
     SELECT COUNT(*) INTO count FROM Noleggia WHERE Cliente = NEW.Cliente AND DataFine IS NULL;
     IF count > 0 THEN
-        SIGNAL SQLSTATE '45000' SET MESSAGE_TEXT = 'Il cliente ha già un noleggio attivo';
+        SIGNAL SQLSTATE '45000' SET MESSAGE_TEXT = 'Il cliente ha gia\' un noleggio attivo';
     END IF;
     -- Veicolo
     SELECT COUNT(*) INTO count FROM Noleggia WHERE VeicoloID = NEW.VeicoloID AND DataFine IS NULL;
     IF count > 0 THEN
-        SIGNAL SQLSTATE '45000' SET MESSAGE_TEXT = 'Il veicolo è già noleggiato';
+        SIGNAL SQLSTATE '45000' SET MESSAGE_TEXT = 'Il veicolo e\' gia\' noleggiato';
     END IF;
 END;
 
@@ -1150,7 +1150,7 @@ BEGIN
     WHERE Cliente = NEW.Cliente
       AND DataFineValidita >= CURDATE();
     IF count > 0 THEN
-        SIGNAL SQLSTATE '45000' SET MESSAGE_TEXT = 'Esiste già un abbonamento attivo per questo cliente';
+        SIGNAL SQLSTATE '45000' SET MESSAGE_TEXT = 'Esiste gia\' un abbonamento attivo per questo cliente';
     END IF;
 END;
 
@@ -1185,7 +1185,7 @@ BEGIN
 END;
 
 -- per aggiornare l'attributo ridondante StazioniDisponibili
-CREATE TRIGGER update_num_stazioni_libere_insert
+CREATE TRIGGER stazioni_libere_insert
 AFTER INSERT ON StazioneRicarica
 FOR EACH ROW
 BEGIN
@@ -1199,7 +1199,7 @@ BEGIN
     END IF;
 END;
 
-CREATE TRIGGER update_num_stazioni_libere_update
+CREATE TRIGGER stazioni_libere_update
 AFTER UPDATE ON StazioneRicarica
 FOR EACH ROW
 BEGIN
@@ -1213,8 +1213,7 @@ BEGIN
     END IF;
 END;
 
--- Imposta stato veicolo in uso all'avvio di un noleggio
-CREATE TRIGGER set_veicolo_in_uso_on_noleggio
+CREATE TRIGGER set_veicolo_in_uso
 AFTER INSERT ON Noleggia
 FOR EACH ROW
 BEGIN
@@ -1223,8 +1222,7 @@ BEGIN
     WHERE ID = NEW.VeicoloID;
 END;
 
--- Imposta stato veicolo disponibile alla fine di un noleggio
-CREATE TRIGGER set_veicolo_disponibile_on_noleggio_fine
+CREATE TRIGGER set_veicolo_disponibile
 AFTER UPDATE ON Noleggia
 FOR EACH ROW
 BEGIN
@@ -1237,7 +1235,7 @@ END;
 
 
 -- Imposta stato stazione di ricarica occupata all'avvio di una ricarica
-CREATE TRIGGER set_stazione_veicolo_ricarica_on_start
+CREATE TRIGGER start_ricarica
 AFTER INSERT ON Ricarica
 FOR EACH ROW
 BEGIN
@@ -1251,7 +1249,7 @@ BEGIN
 END;
 
 -- Imposta stato stazione di ricarica libera alla fine di una ricarica
-CREATE TRIGGER set_stazione_veicolo_libera_on_end
+CREATE TRIGGERend_ricarica
 AFTER UPDATE ON Ricarica
 FOR EACH ROW
 BEGIN
@@ -1300,7 +1298,7 @@ SELECT Targa, Modello, Marca, NumeroPosti, PercentualeBatteria, GPS
 FROM Veicolo_Attivo
 WHERE Stato = 'disponibile' AND Tipologia = ? AND PercentualeBatteria > 20;
 
--- Op 1.e: Visualizzazione dei 10 veicoli più noleggiati nell'ultimo anno per tipologia
+-- Op 1.e: Visualizzazione dei 10 veicoli piu' noleggiati nell'ultimo anno per tipologia
 SELECT 
     v.ID,
     v.Targa,
@@ -1321,7 +1319,7 @@ ORDER BY
 LIMIT 10;
 
 
--- Op 1.f: Visualizzazione dei 5 veicoli che hanno ricevuto più interventi di manutenzione nell'ultimo anno
+-- Op 1.f: Visualizzazione dei 5 veicoli che hanno ricevuto piu' interventi di manutenzione nell'ultimo anno
 SELECT 
 	v.ID,
 	v.Targa,
@@ -1362,7 +1360,7 @@ JOIN Veicolo v ON n.VeicoloID = v.ID
 WHERE n.DataFine IS NOT NULL
 GROUP BY v.Tipologia;
 
--- Op 2.d: Visualizzazione dei veicoli con più chilometri percorsi
+-- Op 2.d: Visualizzazione dei veicoli con piu' chilometri percorsi
 SELECT 
     v.ID,
     v.Modello,
@@ -1402,7 +1400,7 @@ INSERT INTO Patente (Numero, Scadenza, EnteRilascio, DataRilascio, AutoAbilitata
 UPDATE Cliente SET Patente = ? WHERE AccountID = ?
 
 
--- Op: 3.c: Visualizzazione dei clienti con più di 50 noleggi nell'ultimo anno
+-- Op: 3.c: Visualizzazione dei clienti con piu' di 50 noleggi nell'ultimo anno
 SELECT 
     c.AccountID,
     c.Nome,
@@ -1425,7 +1423,7 @@ FROM Cliente c
 JOIN Acquisti_Abbonamenti aa ON c.AccountID = aa.Cliente
 WHERE aa.DataFineValidita >= CURDATE();
 
--- Op 3.d: Visualizzazione dei clienti più fedeli
+-- Op 3.d: Visualizzazione dei clienti piu' fedeli
 SELECT 
     c.AccountID,
     c.Nome,
@@ -1469,7 +1467,7 @@ WHERE ei.ID = ? AND n.DataFine < ei.Data
 ORDER BY UltimoNoleggio DESC
 LIMIT 5;
 
--- Op 4.b: Visualizzazione tipologie di intervento più costose in media
+-- Op 4.b: Visualizzazione tipologie di intervento piu' costose in media
 SELECT 
     ei.Tipologia,
     AVG(ei.Costo) AS CostoMedio
@@ -1499,7 +1497,7 @@ UPDATE Ricarica
         SET DataFine = NOW(), CostoSessione = ?, KWhCaricati = ?
         WHERE ID = ?
 
--- Op 5.c: visualizzazione 10 veicoli che hanno effettuato più ricariche nell’ultimo mese
+-- Op 5.c: visualizzazione 10 veicoli che hanno effettuato piu' ricariche nell’ultimo mese
 SELECT 
     v.ID,
     v.Targa,
@@ -1513,7 +1511,7 @@ GROUP BY v.ID, v.Targa, v.Modello, v.Marca
 ORDER BY NumeroRicariche DESC
 LIMIT 10;
 
--- Op 5.d: operatori che hanno effettuato più ricariche
+-- Op 5.d: operatori che hanno effettuato piu' ricariche
 SELECT 
     o.AccountID,
     a.Email,
@@ -1538,7 +1536,7 @@ JOIN Ricarica r ON sr.ID = r.StazioneRicarica
 GROUP BY cr.ID
 ORDER BY EnergiaTotale DESC;
 
--- Op 6.c: Visualizzazione dei 5 centri di ricarica con più ricariche effettuate nell'ultimo anno
+-- Op 6.c: Visualizzazione dei 5 centri di ricarica con piu' ricariche effettuate nell'ultimo anno
 SELECT 
     cr.ID,
     cr.StazioniDisponibili,
@@ -1578,7 +1576,7 @@ WHERE r.DataFine IS NOT NULL
 GROUP BY sr.ID
 ORDER BY DurataMediaMinuti DESC;
 
--- Op 8.a: Modifica tariffe di ricarica
+-- Op 8.a: Modifica tariffe
 UPDATE Tariffa SET CostoAlMinuto = ? WHERE CategoriaVeicolo = ?
 \end{lstlisting}
 
