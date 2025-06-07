@@ -1,4 +1,4 @@
-import mysql.connector
+import mysql.connector, os, time
 from mysql.connector import Error
 from datetime import date, datetime
 
@@ -8,9 +8,9 @@ def connect_to_database():
         connection = mysql.connector.connect(
             host="localhost",      # Change as needed
             user="root",           # Change as needed
-            password="rootpassword",           # Change as needed
-            database="project_90107_db",   # Change as needed
-            port=3307
+            password="lelelelesql",           # Change as needed
+            database="vehicledb",   # Change as needed
+            port=3306
         )
         if connection.is_connected():
             print("Connected to MySQL database")
@@ -41,6 +41,30 @@ def populate_tariffe(connection):
     connection.commit()
     print(f"Inserted {cursor.rowcount} records into Tariffa table")
     cursor.close()
+
+def populate_officine(connection):
+    # Nome, Indirizzo, NumeroTelefono
+    cursor = connection.cursor()
+    # Clear existing data (optional)
+    cursor.execute("DELETE FROM Officina")
+
+    # Officine data
+    officine = [
+        ('Officina 1', 'Via Roma 1', '0511234567'),
+        ('Officina 2', 'Via Milano 2', '0512345678'),
+        ('Officina 3', 'Via Napoli 3', '0513456789'),
+        ('Officina 4', 'Via Torino 4', '0514567890'),
+        ('Officina 5', 'Via Firenze 5', '0515678901')
+    ]
+
+    # Insert data
+    query = "INSERT INTO Officina (Nome, Indirizzo, NumeroTelefono) VALUES (%s, %s, %s)"
+    cursor.executemany(query, officine)
+
+    connection.commit()
+    print(f"Inserted {cursor.rowcount} records into Officina table")
+    cursor.close()
+
 
 def populate_abbonamenti(connection):
     """Populate the Abbonamento table"""
@@ -171,7 +195,7 @@ def add_vehicle_via_api(
         "NumeroPosti": numeroPosti,
         "PercentualeBatteria": percentualeBatteria,
         "Stato": stato,
-        "chilometraggioTotale": chilometraggioTotale,
+        "ChilometraggioTotale": chilometraggioTotale,
         "Tipologia": tipologia,
         "NumeroPolizzaAssicurativa": numeroPolizzaAssicurativa,
         "gpsQuery": str(lat) + ',' + str(lng)
@@ -249,10 +273,10 @@ def add_account_and_client_via_api(
     }
 
     try:
-        response = requests.put(f"{base_url}/{res['data']["AccountID"]}/license", json=client_data)
+        response = requests.put(f"{base_url}/clients/{res['data']['AccountID']}/license", json=client_data)
         if response.status_code == 200 or response.status_code == 201:
             print("Client updated successfully!")
-            return response.json()
+            return res['data']['AccountID']
         else:
             print(f"Failed to update client. Status code: {response.status_code}")
             print(f"Response: {response.text}")
@@ -318,6 +342,7 @@ def add_rental_via_api(
         "ClienteAccountID": cliente,
         "VeicoloID": veicolo,
         "GPSInizio": GPSInizio,
+        "DataInizio": dataInizio,
     }
     
     try:
@@ -333,16 +358,16 @@ def add_rental_via_api(
         return None
     
     rental_data = {
-        "id": res['data']["id"],
-        "dataFine": dataFine,
         "GPSFine": GPSFine,
         "ChilometriPercorsi": ChilometriPercorsi,
         "EsitoPagamento": EsitoPagamento,
-        "durataMinuti": dataFine - dataInizio,
+        "DataFine": dataFine,
     }
+
+    
     
     try:
-        response = requests.put(f"{base_url}/rentals/{res['data']["id"]}/end", json=rental_data)
+        response = requests.put(f"{base_url}/rentals/{res['data']['id']}/end", json=rental_data)
         if response.status_code == 200 or response.status_code == 201:
             print("Rental added successfully!")
             return response.json()
@@ -360,9 +385,9 @@ def add_maintenance_via_api(
     descrizione=None, note=None
 ):
     maintenance_data = {
-        "veicoloID": veicoloID,
-        "officinaID": officinaID,
-        "dataIntervento": dataIntervento,
+        "VeicoloID": veicoloID,
+        "OfficinaID": officinaID,
+        "DataIntervento": dataIntervento,
         "TipoIntervento": TipoIntervento,
         "Costo": Costo,
         "Descrizione": descrizione,
@@ -388,14 +413,14 @@ def add_charging_via_api(
     costoSessione=None, KWhCaricati=None
 ):  
     charging_data = {
-        "operatoreID": operatoreID,
-        "stazioneID": stazioneID,
-        "veicoloID": veicoloID,
-        "dataInizio": dataInizio
+        "OperatoreAccountID": operatoreID,
+        "StazioneRicaricaID": stazioneID,
+        "VeicoloID": veicoloID,
+        "DataInizio": dataInizio,
     }
     
     try:
-        response = requests.post(f"{base_url}/chargings", json=charging_data)
+        response = requests.post(f"{base_url}/charges/start", json=charging_data)
         if response.status_code == 200 or response.status_code == 201:
             print("Charging added successfully!")
             res = response.json()
@@ -408,14 +433,14 @@ def add_charging_via_api(
         return None
     
     charging_data = {
-        "id": res['data']["id"],
-        "dataFine": dataFine,
-        "costoSessione": costoSessione,
+        "CostoSessione": costoSessione,
         "KWhCaricati": KWhCaricati,
+        "DataFine": dataFine,
     }
 
+
     try:
-        response = requests.put(f"{base_url}/chargings", json=charging_data)
+        response = requests.put(f"{base_url}/charges/{res['data']['id']}/end", json=charging_data)
         if response.status_code == 200 or response.status_code == 201:
             print("Charging added successfully!")
             return response.json()
@@ -436,13 +461,144 @@ def main():
     
     # Populate tables
     try:
- #       add_vehicle_via_api(modello="Tesla", marca="Tesla", numeroPosti=5, percentualeBatteria=100, stato="disponibile", chilometraggioTotale=10000, tipologia="auto", numeroPolizzaAssicurativa="1234567890", lat=44.4268, lng=8.9480, targa="1234567890", scadenzaRevisione='2025-01-01', dataImmatricolazione='2025-01-01')
-  #      add_charging_station_via_api("CCS2", "libera", 44.4268, 8.9480)
-  #      add_charging_center_via_api("Via Roma 123")
-        add_account_and_client_via_api(email="cliendt1@example.com", password="password123", telefono="33311112221", nome="Dario", cognome="Rossi", dataNascita='1990-01-01', luogoNascita="Bologna", indirizzoResidenza="Via Roma 123", documento_numero="12345671890", documento_scadenza='2025-01-01', documento_enteRilascio="Bologna", PatenteNumero="12341567890", PatenteDataRilascio='2025-01-01', PatenteEnteRilascio="Bologna", PatenteScadenza='2025-01-01', AB="B", numeroCarta="123456178901234", cvv="123", scadenza='2025-01-01', intestatario="Dario Rossi")
-        add_rental_via_api(cliente="1", veicolo="1", dataInizio='2025-01-01', dataFine='2025-01-02', ChilometriPercorsi=100, EsitoPagamento="successo", GPSInizio='44.4268,8.9480', GPSFine='44.4268,8.9480')
-        add_maintenance_via_api("1", "1", date(2025, 1, 1), "manutenzione", 100)
-        add_charging_via_api("1", "1", "1", date(2025, 1, 1), date(2025, 1, 2), 100)
+        populate_tariffe(connection)
+        populate_abbonamenti(connection)
+        populate_operatore_ricarica(connection)
+        populate_addetto_call_center(connection)
+        populate_officine(connection)
+
+
+        import random
+        from random import randint
+        from datetime import timedelta
+
+        ## For loop to add multiple vehicles with different values
+        def random_date(start, end):
+            """Generate a random date between start and end (inclusive)."""
+            delta = end - start
+            random_days = randint(0, delta.days)
+            return (start + timedelta(days=random_days)).strftime('%Y-%m-%d')
+
+        start_date = date(2025, 9, 9)
+        end_date = date(2030, 1, 1)
+
+        for i in range(1, 10):
+            scadenza = random_date(start_date, end_date)
+            add_vehicle_via_api(
+            modello=f"Auto{i}", marca="Marca", numeroPosti=5,
+            percentualeBatteria=randint(20, 100), stato="disponibile",
+            chilometraggioTotale=10000 + i * 1000, tipologia="auto",
+            numeroPolizzaAssicurativa=f"1234567890{i}", lat=44.4268 + i * 0.001,
+            lng=8.9480 + i * 0.001, targa=f"TARGA{i}",
+            scadenzaRevisione=scadenza, dataImmatricolazione='2025-01-01'
+            )
+            # aggiungi qualche bici
+            add_vehicle_via_api(
+            modello=f"Bicicletta{i}", marca="Marca", numeroPosti=1,
+            percentualeBatteria=randint(20, 100), stato="disponibile",
+            chilometraggioTotale=500 + i * 100, tipologia="bicicletta",
+            numeroPolizzaAssicurativa=f"1234567890{i}", lat=44.4268 + i * 0.001,
+            lng=8.9480 + i * 0.001
+            )
+            # aggiungi qualche scooter
+            scadenza_scooter = random_date(start_date, end_date)
+            add_vehicle_via_api(
+            modello=f"Scooter{i}", marca="Marca", numeroPosti=2,
+            percentualeBatteria=randint(20, 100), stato="disponibile",
+            chilometraggioTotale=1000 + i * 100, tipologia="scooter",
+            numeroPolizzaAssicurativa=f"1234567890{i}", lat=44.4268 + i * 0.001,
+            lng=8.9480 + i * 0.001, targa=f"TARGA{i+10}",
+            scadenzaRevisione=scadenza_scooter, dataImmatricolazione='2025-01-01'
+            )
+            ## aggiungi qualche monopattino
+            add_vehicle_via_api(
+            modello=f"Monopattino{i}", marca="Marca", numeroPosti=1,
+            percentualeBatteria=randint(20, 100), stato="disponibile",
+            chilometraggioTotale=200 + i * 50, tipologia="monopattino",
+            numeroPolizzaAssicurativa=f"1234567890{i}", lat=44.4268 + i * 0.001,
+            lng=8.9480 + i * 0.001
+            )
+        
+
+        for i in range(1, 6):
+            add_charging_center_via_api(f"Via Roma {i * 10} {i * 10}")
+
+        for i in range(1, 30):
+            tipi = ["Schuko", "Type2", "CCS2"]
+            add_charging_station_via_api(tipi[i % 3], "libera", 44.4268 + i * 0.001, 8.9480 + i * 0.001, centroRicarica=i % 5 + 1)
+            add_charging_station_via_api(tipi[(i + 2) % 3], "libera", 46.2345 + i * 0.001, 10.2434 + i * 0.001)
+
+        # For loop per creare 10 utenti di esempio con date di nascita casuali e scadenze che vanno da 2025-09-09 a 5 anni. Le date sono stringhe nel formato 'YYYY-MM-DD'.
+        import random
+        from datetime import timedelta
+        def random_date(start, end):
+            """Generate a random date between start and end (inclusive)."""
+            delta = end - start
+            random_days = random.randint(0, delta.days)
+            return (start + timedelta(days=random_days)).strftime('%Y-%m-%d')
+        
+        start_date = date(2025, 9, 9)
+        end_date = date(2030, 1, 1)
+        ids = []
+        for i in range(1, 11):
+            data_nascita = "1990-01-01"  # Fissa una data di nascita per tutti gli utenti
+            scadenza_documento = random_date(start_date, end_date)
+            scadenza_patente = random_date(start_date, end_date)
+            ids.append(add_account_and_client_via_api(
+                email=f"client{i}@example.com", password="password123", telefono=f"333111122{i}", nome=f"Nome{i}", cognome=f"Cognome{i}", dataNascita=data_nascita, luogoNascita="Bologna", indirizzoResidenza="Via Roma 123", documento_numero=f"34253453{i}", documento_scadenza=scadenza_documento, documento_enteRilascio="Bologna", PatenteNumero=f"12341567{i}", PatenteDataRilascio='2025-01-01', PatenteEnteRilascio="Bologna", PatenteScadenza=scadenza_patente, AB="B", numeroCarta=f"23423423434234{i}", cvv="123", scadenza=scadenza_patente, intestatario=f"Nome Cognome{i}"
+            ))
+
+
+        # Inserisci dei noleggi usando come ID clienti ids e i veicoli id da 1 a 36
+        for i in range(1, 500):
+            cliente = random.choice(ids)
+            veicolo = random.randint(1, 36)
+            # Genera una data di base randomica tra il 2025-01-01 e il 2025-12-31 in stringa formato 'YYYY-MM-DDTHH:MM:SS'
+            data_inizio = f"2025-05-{random.randint(1, 27):02d}T{random.randint(0, 23):02d}:{random.randint(0, 59):02d}:00"
+            ## data_fine è data_inizio + un valore random tra 1 e 3 ore in stringa formato 'YYYY-MM-DDTHH:MM:SS'
+            data_fine = datetime.strptime(data_inizio, '%Y-%m-%dT%H:%M:%S') + timedelta(minutes=random.randint(30, 300))
+            data_fine = data_fine.strftime('%Y-%m-%dT%H:%M:%S')
+            chilometri_percorsi = random.randint(5, 30)
+            esito_pagamento = "successo"
+            gps_inizio = f"{44.4268 + i * 0.001},{8.9480 + i * 0.001}"
+            gps_fine = f"{44.4268 + i * 0.001},{8.9480 + i * 0.001}"
+            add_rental_via_api(cliente=cliente, veicolo=veicolo, dataInizio=data_inizio, dataFine=data_fine, ChilometriPercorsi=chilometri_percorsi, EsitoPagamento=esito_pagamento, GPSInizio=gps_inizio, GPSFine=gps_fine)
+
+        for i in range(1, 1000):
+            cliente = random.choice(ids)
+            veicolo = random.randint(1, 36)
+            # Genera una data di base randomica tra il 2025-01-01 e il 2025-12-31 in stringa formato 'YYYY-MM-DDTHH:MM:SS'
+            data_inizio = f"2025-{random.randint(1, 5):02d}-{random.randint(1, 27):02d}T{random.randint(0, 23):02d}:{random.randint(0, 59):02d}:00"
+            ## data_fine è data_inizio + un valore random tra 1 e 3 ore in stringa formato 'YYYY-MM-DDTHH:MM:SS'
+            data_fine = datetime.strptime(data_inizio, '%Y-%m-%dT%H:%M:%S') + timedelta(minutes=random.randint(30, 300))
+            data_fine = data_fine.strftime('%Y-%m-%dT%H:%M:%S')
+            chilometri_percorsi = random.randint(5, 30)
+            esito_pagamento = "successo"
+            gps_inizio = f"{44.4268 + i * 0.001},{8.9480 + i * 0.001}"
+            gps_fine = f"{44.4268 + i * 0.001},{8.9480 + i * 0.001}"
+            add_rental_via_api(cliente=cliente, veicolo=veicolo, dataInizio=data_inizio, dataFine=data_fine, ChilometriPercorsi=chilometri_percorsi, EsitoPagamento=esito_pagamento, GPSInizio=gps_inizio, GPSFine=gps_fine)
+
+
+        # Aggiuni 10 manutenzioi a veicoli random da 1 a 36 con date stringhe randomiche tra 2025-04-01 e 2025-05-01
+        for i in range(1, 300):
+            veicolo_id = random.randint(1, 36)
+            officina_id = random.randint(1, 5)  # Assuming you have 5 officine
+            data_intervento = f"2025-05-{random.randint(1, 27):02d}"
+            tipo_intervento = "manutenzione"
+            costo = random.uniform(50.0, 200.0)
+            add_maintenance_via_api(veicolo_id, officina_id, data_intervento, tipo_intervento, costo)
+
+        ## Aggiungi 10 ricariche con operatore random da 1 a 5, stazione random da 1 a 30, veicolo random da 1 a 36, date stringhe tra 2025-05-01T10:00:00 e 2025-05-01T11:00:00
+        for i in range(1, 800):
+            operatore_id = random.randint(1, 5)
+            stazione_id = random.randint(1, 30)
+            veicolo_id = random.randint(1, 36)
+            data_inizio = f"2025-05-{random.randint(1, 27):02d}T{random.randint(10, 11):02d}:{random.randint(0, 59):02d}:00"
+            data_fine = datetime.strptime(data_inizio, '%Y-%m-%dT%H:%M:%S') + timedelta(minutes=random.randint(30, 120))
+            data_fine = data_fine.strftime('%Y-%m-%dT%H:%M:%S')
+            
+            add_charging_via_api(operatore_id, stazione_id, veicolo_id, data_inizio, data_fine, costoSessione=random.uniform(5.0, 20.0), KWhCaricati=random.uniform(10.0, 50.0))
+        
         
     except Error as e:
         print(f"Error: {e}")
