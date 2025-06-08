@@ -14,7 +14,7 @@ const manutenzioniController = {
         Note
       } = req.body;
 
-      console.log('Dati ricevuti per l\'inserimento:', req.body);
+  
 
       // Validazione dei campi obbligatori
       if (!VeicoloID) {
@@ -100,10 +100,10 @@ const manutenzioniController = {
     try {
       const query = `
         SELECT 
-            ei.Tipologia,
+            ei.Descrizione,
             AVG(ei.Costo) AS CostoMedio
         FROM EsegueIntervento ei
-        GROUP BY ei.Tipologia
+        GROUP BY ei.Descrizione
         ORDER BY CostoMedio DESC
         LIMIT 5
       `;

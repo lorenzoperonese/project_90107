@@ -8,7 +8,8 @@ const noleggiController = {
       const {
         ClienteAccountID,
         VeicoloID,
-        GPSInizio
+        GPSInizio,
+        DataInizio
       } = req.body;
 
       // Parsing GPS inizio
@@ -17,19 +18,21 @@ const noleggiController = {
         gpsInizioFormatted = parseGpsString(GPSInizio);
       }
 
+      // Use provided DataInizio or current time if not provided
+      const dataInizioToUse = DataInizio || new Date();
+
       const query = `
         INSERT INTO Noleggia (
-          ClienteAccountID, VeicoloID, GPSInizio
-        ) VALUES (?, ?, ST_PointFromText(?))
+          ClienteAccountID, VeicoloID, GPSInizio, DataInizio
+        ) VALUES (?, ?, ST_PointFromText(?), ?)
       `;
 
       const values = [
         ClienteAccountID,
         VeicoloID,
-        gpsInizioFormatted
+        gpsInizioFormatted,
+        dataInizioToUse
       ];
-
-      console.log(values)
       const [result] = await pool.execute(query, values);
 
       return res.status(201).json({
@@ -39,7 +42,7 @@ const noleggiController = {
           id: result.insertId,
           ClienteAccountID,
           VeicoloID,
-          DataInizio: new Date()
+          DataInizio: dataInizioToUse
         }
       });
     } catch (error) {
@@ -61,8 +64,32 @@ const noleggiController = {
         ChilometriPercorsi,
         Costo,
         DurataMinuti,
-        EsitoPagamento
+        EsitoPagamento,
+        DataFine
       } = req.body;
+
+      // Get the current rental to check DataInizio
+      const checkQuery = `SELECT DataInizio FROM Noleggia WHERE ID = ?`;
+      const [rentalResult] = await pool.execute(checkQuery, [id]);
+      
+      if (rentalResult.length === 0) {
+        return res.status(404).json({
+          success: false,
+          message: 'Noleggio non trovato'
+        });
+      }
+
+      const dataInizio = new Date(rentalResult[0].DataInizio);
+      const dataFineToUse = DataFine ? new Date(DataFine) : new Date();
+
+      // Validate that DataFine is after DataInizio
+      if (dataFineToUse <= dataInizio) {
+        return res.status(400).json({
+          success: false,
+          message: 'Errore durante la conclusione del noleggio',
+          error: 'La data di fine deve essere successiva a quella di inizio'
+        });
+      }
 
       // Parsing GPS fine
       let gpsFineFormatted = null;
@@ -72,24 +99,16 @@ const noleggiController = {
 
       const query = `
         UPDATE Noleggia 
-        SET DataFine = NOW(), 
+        SET DataFine = ?, 
             GPSFine = ST_PointFromText(?),
             ChilometriPercorsi = ?, 
             EsitoPagamento = ?
         WHERE ID = ?
       `;
 
-      const values = [gpsFineFormatted, ChilometriPercorsi, EsitoPagamento, id];
-      console.log(values)
+      const values = [dataFineToUse, gpsFineFormatted, ChilometriPercorsi, EsitoPagamento, id];
 
       const [result] = await pool.execute(query, values);
-
-      if (result.affectedRows === 0) {
-        return res.status(404).json({
-          success: false,
-          message: 'Noleggio non trovato'
-        });
-      }
 
       return res.status(200).json({
         success: true,
@@ -99,7 +118,9 @@ const noleggiController = {
           ChilometriPercorsi,
           Costo,
           DurataMinuti,
-          EsitoPagamento
+          EsitoPagamento,
+          DataInizio: dataInizio,
+          DataFine: dataFineToUse
         }
       });
     } catch (error) {

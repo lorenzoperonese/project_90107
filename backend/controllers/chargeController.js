@@ -7,19 +7,24 @@ const ricaricheController = {
       const {
         OperatoreAccountID,
         VeicoloID,
-        StazioneRicaricaID
+        StazioneRicaricaID,
+        DataInizio
       } = req.body;
+
+      // Use provided DataInizio or current time if not provided
+      const dataInizioToUse = DataInizio || new Date();
 
       const query = `
         INSERT INTO Ricarica (
-          OperatoreAccountID, VeicoloID, StazioneRicaricaID
-        ) VALUES (?, ?, ?)
+          OperatoreAccountID, VeicoloID, StazioneRicaricaID, DataInizio
+        ) VALUES (?, ?, ?, ?)
       `;
 
       const values = [
         OperatoreAccountID,
         VeicoloID,
-        StazioneRicaricaID
+        StazioneRicaricaID,
+        dataInizioToUse
       ];
 
       const [result] = await pool.execute(query, values);
@@ -32,7 +37,7 @@ const ricaricheController = {
           OperatoreAccountID,
           VeicoloID,
           StazioneRicaricaID,
-          DataInizio: new Date()
+          DataInizio: dataInizioToUse
         }
       });
     } catch (error) {
@@ -51,25 +56,42 @@ const ricaricheController = {
       const { id } = req.params;
       const {
         CostoSessione,
-        KWhCaricati
+        KWhCaricati,
+        DataFine
       } = req.body;
 
-      const query = `
-        UPDATE Ricarica 
-        SET DataFine = NOW(), CostoSessione = ?, KWhCaricati = ?
-        WHERE ID = ?
-      `;
-
-      const values = [CostoSessione, KWhCaricati, id];
-
-      const [result] = await pool.execute(query, values);
-
-      if (result.affectedRows === 0) {
+      // Get the current charging session to check DataInizio
+      const checkQuery = `SELECT DataInizio FROM Ricarica WHERE ID = ?`;
+      const [chargingResult] = await pool.execute(checkQuery, [id]);
+      
+      if (chargingResult.length === 0) {
         return res.status(404).json({
           success: false,
           message: 'Sessione di ricarica non trovata'
         });
       }
+
+      const dataInizio = new Date(chargingResult[0].DataInizio);
+      const dataFineToUse = DataFine ? new Date(DataFine) : new Date();
+
+      // Validate that DataFine is after DataInizio
+      if (dataFineToUse <= dataInizio) {
+        return res.status(400).json({
+          success: false,
+          message: 'Errore durante la conclusione della sessione di ricarica',
+          error: 'La data di fine deve essere successiva a quella di inizio'
+        });
+      }
+
+      const query = `
+        UPDATE Ricarica 
+        SET DataFine = ?, CostoSessione = ?, KWhCaricati = ?
+        WHERE ID = ?
+      `;
+
+      const values = [dataFineToUse, CostoSessione, KWhCaricati, id];
+
+      const [result] = await pool.execute(query, values);
 
       return res.status(200).json({
         success: true,
@@ -78,7 +100,8 @@ const ricaricheController = {
           id,
           CostoSessione,
           KWhCaricati,
-          DataFine: new Date()
+          DataInizio: dataInizio,
+          DataFine: dataFineToUse
         }
       });
     } catch (error) {

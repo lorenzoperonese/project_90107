@@ -20,18 +20,38 @@ const vehicleController = {
         ChilometraggioTotale,
       } = req.body;
       
-      console.log('Dati ricevuti:', req.body);
+  
+      
+      // Validazione dei campi obbligatori per tutti i veicoli
+      if (!NumeroPolizzaAssicurativa) {
+        return res.status(400).json({
+          success: false,
+          message: 'NumeroPolizzaAssicurativa è obbligatorio per tutti i veicoli'
+        });
+      }
       
       const gpsFormatted = parseGpsString(gpsQuery);
       
-      // Campi base sempre presenti
-      const baseFields = ['Tipologia', 'Modello', 'Marca', 'PercentualeBatteria', 'GPS', 'Stato'];
-      const baseValues = [Tipologia, Modello, Marca, PercentualeBatteria, gpsFormatted, Stato];
+      // Campi base sempre presenti per tutti i tipi di veicoli
+      const baseFields = ['Tipologia', 'Modello', 'Marca', 'PercentualeBatteria', 'GPS', 'Stato', 'NumeroPolizzaAssicurativa'];
+      const baseValues = [Tipologia, Modello, Marca, PercentualeBatteria, gpsFormatted, Stato, NumeroPolizzaAssicurativa];
       
-      // Campi condizionali per auto e scooter
+      // Campi condizionali
       const conditionalFields = [];
       const conditionalValues = [];
       
+      // Aggiungi NumeroPosti e ChilometraggioTotale per tutti i tipi di veicoli
+      if (NumeroPosti !== undefined && NumeroPosti !== null) {
+        conditionalFields.push('NumeroPosti');
+        conditionalValues.push(NumeroPosti);
+      }
+      
+      if (ChilometraggioTotale !== undefined && ChilometraggioTotale !== null) {
+        conditionalFields.push('ChilometraggioTotale');
+        conditionalValues.push(ChilometraggioTotale);
+      }
+      
+      // Campi specifici per auto e scooter
       if (['auto', 'scooter'].includes(Tipologia)) {
         if (Targa) {
           conditionalFields.push('Targa');
@@ -41,21 +61,9 @@ const vehicleController = {
           conditionalFields.push('ScadenzaRevisione');
           conditionalValues.push(ScadenzaRevisione);
         }
-        if (NumeroPolizzaAssicurativa) {
-          conditionalFields.push('NumeroPolizzaAssicurativa');
-          conditionalValues.push(NumeroPolizzaAssicurativa);
-        }
-        if (NumeroPosti) {
-          conditionalFields.push('NumeroPosti');
-          conditionalValues.push(NumeroPosti);
-        }
         if (DataImmatricolazione) {
           conditionalFields.push('DataImmatricolazione');
           conditionalValues.push(DataImmatricolazione);
-        }
-        if (ChilometraggioTotale) {
-          conditionalFields.push('ChilometraggioTotale');
-          conditionalValues.push(ChilometraggioTotale);
         }
       }
       
@@ -68,8 +76,7 @@ const vehicleController = {
       
       const query = `INSERT INTO Veicolo (${fieldNames}) VALUES (${placeholders})`;
       
-      console.log('Query costruita:', query);
-      console.log('Valori per l\'inserimento:', allValues);
+      
 
       const [result] = await pool.execute(query, allValues);
       
@@ -105,7 +112,7 @@ const vehicleController = {
         ChilometraggioTotale,
       } = req.body;
 
-      console.log('Dati ricevuti per l\'aggiornamento:', req.body);      
+            
       
       const gpsFormatted = parseGpsString(gpsQuery);
       
@@ -117,7 +124,7 @@ const vehicleController = {
         id
       ];
 
-      console.log('Valori per l\'aggiornamento:', values);
+      
       const query = 'UPDATE Veicolo_Attivo SET PercentualeBatteria = ?, GPS = ST_PointFromText(?), Stato = ?, ChilometraggioTotale = ? WHERE ID = ?';
 
       const [result] = await pool.execute(query, values);
@@ -152,7 +159,7 @@ const vehicleController = {
   deleteVehicle: async (req, res) => {
     try {
       const { id } = req.params;
-      console.log('ID ricevuto per la cancellazione:', id);
+      
       
       const query = 'UPDATE Veicolo_Attivo SET Stato = "eliminato" WHERE ID = ?';
       const [result] = await pool.execute(query, [id]);

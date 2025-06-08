@@ -58,17 +58,7 @@ const clientiController = {
         Intestatario
       } = req.body;
 
-      console.log('Dati ricevuti per la creazione del cliente:', {
-        Nome,
-        Cognome,
-        DataNascita,
-        LuogoNascita,
-        IndirizzoResidenza,
-        DocumentoNumero,
-        Email,
-        Telefono,
-        NumeroCarta
-      });
+      
 
       // Inserimento MetodoPagamento
       const metodoPagamentoQuery = `
@@ -202,7 +192,6 @@ const clientiController = {
           COUNT(n.ID) AS NumeroNoleggi
         FROM Cliente c
         JOIN Noleggia n ON c.AccountID = n.ClienteAccountID
-        WHERE n.DataInizio >= DATE_SUB(CURDATE(), INTERVAL 1 YEAR)
         GROUP BY c.AccountID, c.Nome, c.Cognome
         HAVING NumeroNoleggi > 50
       `;
@@ -237,7 +226,6 @@ const clientiController = {
           aa.DataFineValidita
         FROM Cliente c
         JOIN Acquisti_Abbonamenti aa ON c.AccountID = aa.ClienteAccountID
-        WHERE aa.DataFineValidita >= CURDATE()
       `;
 
       const [clients] = await pool.execute(query);
