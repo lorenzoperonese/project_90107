@@ -5,13 +5,13 @@
       <div 
         ref="scrollContainer"
         @scroll="handleScroll"
-        class="flex-1 overflow-y-auto p-6 pb-0 modal-scroll"
+        class="flex-1 overflow-y-auto p-4 md:p-6 pb-0 modal-scroll"
       >
         <div class="space-y-4">
           <!-- READ Operation Form -->
           <div v-if="isReadOperation" class="space-y-6">
             <!-- Form fields section -->
-            <div v-if="!searchResults" class="grid grid-cols-1 md:grid-cols-2 gap-4">
+            <div v-if="!searchResults" class="grid grid-cols-1 gap-4">
               <FormField
                 v-for="(field, index) in fields"
                 :key="index"
@@ -41,31 +41,35 @@
                 </div>
 
                 <!-- Array of results -->
-                <div v-else-if="Array.isArray(searchResults)" class="overflow-x-auto">
-                  <table class="min-w-full bg-white border border-blue-200 rounded-lg overflow-hidden">
-                    <thead class="bg-blue-100">
-                      <tr>
-                        <th v-for="(_, key) in searchResults[0]" :key="key" class="px-4 py-3 text-left text-sm font-semibold text-blue-900 uppercase tracking-wider border-b border-blue-200">
-                          {{ formatColumnName(key) }}
-                        </th>
-                      </tr>
-                    </thead>
-                    <tbody>
-                      <tr v-for="(item, index) in searchResults" :key="index" :class="index % 2 === 0 ? 'bg-white' : 'bg-blue-50'">
-                        <td v-for="(value, key) in item" :key="`${index}-${key}`" class="px-4 py-3 text-sm text-gray-700 border-b border-blue-100">
-                          {{ formatValue(value) }}
-                        </td>
-                      </tr>
-                    </tbody>
-                  </table>
+                <div v-else-if="Array.isArray(searchResults)" class="overflow-x-auto -mx-4 md:mx-0">
+                  <div class="inline-block min-w-full align-middle">
+                    <table class="min-w-full bg-white border border-blue-200 rounded-lg overflow-hidden">
+                      <thead class="bg-blue-100">
+                        <tr>
+                          <th v-for="(_, key) in searchResults[0]" :key="key" class="px-3 md:px-4 py-2 md:py-3 text-left text-xs md:text-sm font-semibold text-blue-900 uppercase tracking-wider border-b border-blue-200 whitespace-nowrap">
+                            {{ formatColumnName(key) }}
+                          </th>
+                        </tr>
+                      </thead>
+                      <tbody>
+                        <tr v-for="(item, index) in searchResults" :key="index" :class="index % 2 === 0 ? 'bg-white' : 'bg-blue-50'">
+                          <td v-for="(value, key) in item" :key="`${index}-${key}`" class="px-3 md:px-4 py-2 md:py-3 text-xs md:text-sm text-gray-700 border-b border-blue-100">
+                            <div class="max-w-xs truncate" :title="formatValue(value)">
+                              {{ formatValue(value) }}
+                            </div>
+                          </td>
+                        </tr>
+                      </tbody>
+                    </table>
+                  </div>
                 </div>
 
                 <!-- Single object result -->
                 <div v-else-if="typeof searchResults === 'object'" class="bg-white rounded-lg border border-blue-200 overflow-hidden">
                   <div class="grid grid-cols-1 divide-y divide-blue-100">
-                    <div v-for="(value, key) in searchResults" :key="key" class="flex p-4">
-                      <div class="w-1/3 font-medium text-blue-800">{{ formatColumnName(key) }}</div>
-                      <div class="w-2/3 text-gray-700">{{ formatValue(value) }}</div>
+                    <div v-for="(value, key) in searchResults" :key="key" class="flex flex-col sm:flex-row p-3 md:p-4">
+                      <div class="sm:w-1/3 font-medium text-blue-800 mb-1 sm:mb-0">{{ formatColumnName(key) }}</div>
+                      <div class="sm:w-2/3 text-gray-700 break-words">{{ formatValue(value) }}</div>
                     </div>
                   </div>
                 </div>
@@ -94,7 +98,7 @@
 
           <!-- DELETE Operation -->
           <div v-else-if="operation === 'delete'" class="space-y-4">
-            <div class="grid grid-cols-1 md:grid-cols-2 gap-4">
+            <div class="grid grid-cols-1 gap-4">
               <FormField
                 :field="deleteField"
                 :value="formData[deleteField.name]"
@@ -124,7 +128,7 @@
             </div>
 
             <!-- Altri campi -->
-            <div class="grid grid-cols-1 md:grid-cols-2 gap-4">
+            <div class="grid grid-cols-1 gap-4">
               <FormField
                 v-for="(field, index) in fieldsWithState"
                 :key="`${index}-${field.name}`"
@@ -147,15 +151,15 @@
       <!-- Action Buttons - Always Visible -->
       <div 
         :class="[
-          'flex-shrink-0 p-6 pt-4 border-t border-gray-200 bg-white transition-shadow duration-200 rounded-b-3xl',
+          'flex-shrink-0 p-4 md:p-6 pt-3 md:pt-4 border-t border-gray-200 bg-white transition-shadow duration-200 rounded-b-2xl md:rounded-b-3xl',
           showTopShadow ? 'shadow-[0_-4px_6px_-1px_rgba(0,0,0,0.1)]' : ''
         ]"
       >
-        <div class="flex gap-4">
+        <div class="flex flex-col sm:flex-row gap-3 md:gap-4">
           <button v-if="!searchResults || !isReadOperation" type="submit" :class="submitButtonClass">
             {{ buttonText }}
           </button>
-          <button type="button" @click="$emit('cancel')" class="px-6 py-3 rounded-xl font-semibold bg-gray-500 hover:bg-gray-600 text-white transition-colors">
+          <button type="button" @click="$emit('cancel')" class="px-4 md:px-6 py-3 rounded-lg md:rounded-xl font-semibold bg-gray-500 hover:bg-gray-600 text-white transition-colors touch-manipulation">
             Annulla
           </button>
         </div>
@@ -234,7 +238,7 @@ const backgroundClass = computed(() => {
 })
 
 const submitButtonClass = computed(() => {
-  const baseClass = 'flex-1 px-6 py-3 rounded-xl font-semibold transition-all duration-200 shadow-lg'
+  const baseClass = 'flex-1 px-4 md:px-6 py-3 rounded-lg md:rounded-xl font-semibold transition-all duration-200 shadow-lg touch-manipulation active:scale-95'
   switch (props.operation) {
     case 'create': return `${baseClass} bg-green-600 hover:bg-green-700 text-white`
     case 'delete': return `${baseClass} bg-red-600 hover:bg-red-700 text-white`

@@ -67,10 +67,10 @@ defineEmits(['update'])
 
 const fieldId = computed(() => `field-${props.field.name}`)
 const isInputField = computed(() => ['text', 'email', 'number', 'date', 'password'].includes(props.field.type))
-const containerClass = computed(() => props.field.type === 'textarea' ? 'space-y-2 md:col-span-2' : 'space-y-2')
+const containerClass = computed(() => props.field.type === 'textarea' ? 'space-y-2' : 'space-y-2')
 const labelClass = computed(() => props.labelClass || 'block text-sm font-medium text-gray-700')
 const inputClass = computed(() => {
-  const baseClass = 'w-full px-3 py-2 border rounded-lg focus:outline-none focus:ring-2 focus:ring-blue-500 transition-colors text-gray-900 bg-white placeholder-gray-500'
+  const baseClass = 'w-full px-3 md:px-4 py-3 md:py-2 border rounded-lg focus:outline-none focus:ring-2 focus:ring-blue-500 transition-colors text-gray-900 bg-white placeholder-gray-500 text-base md:text-sm'
   const disabledClass = props.disabled ? 'opacity-50 cursor-not-allowed bg-gray-100' : ''
   const prefixClass = props.classPrefix ? props.classPrefix : 'border-gray-300'
   return `${baseClass} ${prefixClass} ${disabledClass}`.trim()

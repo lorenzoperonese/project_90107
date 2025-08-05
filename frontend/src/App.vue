@@ -1,16 +1,16 @@
 <template>
   <div id="app" class="min-h-screen bg-blue-900">
     <!-- Header -->
-    <header class="text-center py-24">
-      <h1 class="text-6xl font-bold text-white mb-4">
+    <header class="text-center py-12 md:py-24 px-4">
+      <h1 class="text-4xl md:text-6xl font-bold text-white mb-4">
         BoloMove
         <span class="bg-gradient-to-r from-blue-400 to-purple-400 bg-clip-text text-transparent">Hub</span>
       </h1>
-      <p class="text-xl text-gray-300">Interagisci con il nostro database</p>
+      <p class="text-lg md:text-xl text-gray-300">Interagisci con il nostro database</p>
     </header>
 
     <!-- Main content -->
-    <main class="px-6 pb-12">
+    <main class="px-4 md:px-6 pb-12">
       <!-- Section Grid -->
       <SectionGrid
         :sections="sections"
